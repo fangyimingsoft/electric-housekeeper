@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ele_housekeeper?serverTimezone=UTC
+    username: root
+    password: fangyiming
+    tomcat:
+      init-s-q-l: select 1 from dual
+
+  thymeleaf:
+    enabled: true
+    suffix: .html
+    prefix: classpath:/templates/
+    cache: false
+
+
+logging:
+  level:
+    root:
+
+
+
