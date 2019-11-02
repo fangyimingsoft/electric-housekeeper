@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.fym</groupId>
-    <artifactId>eletric-housekeeper</artifactId>
+    <artifactId>electric-housekeeper</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>electric-housekeeper</name>
     <description>电管家</description>
