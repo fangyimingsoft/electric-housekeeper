@@ -6,12 +6,13 @@ import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.jws.soap.SOAPBinding;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -28,8 +29,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<?> userList(@RequestParam("name") String name){
-        return userRepository.findByName(name);
+    public User userList(@RequestParam("name") String name){
+        return userRepository.findByUsername(name);
     }
 
 }

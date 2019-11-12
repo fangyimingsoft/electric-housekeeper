@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>智能电管家-主页</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="../static/assets/css/common.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
@@ -12,9 +16,300 @@
         [v-cloak]{
             display: none;
         }
+        .el-tree-node__content{
+            height: 56px;
+        }
+        .custom-tree-node {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            line-height: 56px;
+            padding-right: 8px;
+        }
+
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+            padding: 0px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+
+        .el-tree-node__content:hover{
+            background-color: #444864;
+        }
+
+        .el-tree-node:focus>.el-tree-node__content{
+            background-color: black;
+        }
     </style>
 </head>
 <body>
+<div id="root">
+    <el-container :style="{width : windowSize.width + 'px',height : windowSize.height + 'px'}">
+        <el-header style="text-align: right;">
+            <el-button size="mini">客户端下载</el-button>
+            <el-button size="mini">管理入口</el-button>
+            <el-button size="mini">修改密码</el-button>
+            <el-button size="mini">退出登录</el-button>
+        </el-header>
+        <el-container>
+            <el-aside width="400px" style="overflow: auto;background-color: #545c64;">
+                <div style="overflow: auto;" :style="{height : windowSize.height - 60 + 'px'}">
+                        <el-tree
+                                style="background-color: #545c64;color: white;"
+                                :data="equList"
+                                show-checkbox
+                                node-key="id"
+                                :hightlight-current="false"
+                                :expand-on-click-node="false">
+                              <span class="custom-tree-node" slot-scope="{ node, data }">
+                                <span>{{ formatNodeStr(node) }}</span>
+                                <span>
+                                  <el-button
+                                          type="text"
+                                          size="mini">
+                                      运行中
+                                  </el-button>
+                                  <el-button
+                                          type="text"
+                                          size="mini">
+                                    位置
+                                  </el-button>
+                                </span>
+                              </span>
+                        </el-tree>
+                </div>
+            </el-aside>
+            <el-container>
+                <el-main :style="{height : windowSize.height - 60 + 'px'}">
+                    <el-menu
+                            @select="function(index){activeArea = index}"
+                            :default-active="activeArea"
+                            class="el-menu-demo"
+                            mode="horizontal"
+                            background-color="#545c64"
+                            text-color="#fff"
+                            active-text-color="#ffd04b">
+                        <el-menu-item index="1">运行状态</el-menu-item>
+                        <el-menu-item index="2">报警信息</el-menu-item>
+                        <el-menu-item index="3">历史数据</el-menu-item>
+                        <el-menu-item index="4">数据分析</el-menu-item>
+                        <el-menu-item index="5">设备位置</el-menu-item>
+                        <el-menu-item index="6">安防监控</el-menu-item>
+                        <el-menu-item index="7">业务报表</el-menu-item>
+                    </el-menu>
+                        <!--设备编号	设备名称	设备类型	最后采集时间	负载	变压器容量	状态	报警信息	位置信息-->
+                        <div v-if="activeArea == 1">
+                            <el-table
+                                    :data="tableData"
+                                    border
+                                    stripe
+                                    :max-height="windowSize.height - 250 + 'px'"
+                                    style="width: 100%;margin-top: 30px;">
+                                <el-table-column type="expand">
+                                    <template slot-scope="props">
+                                        <el-table :data="props.row.data" border size="mini">
+                                            <el-table-column prop="title" label="">
 
+                                            </el-table-column>
+                                            <el-table-column prop="voltage" label="电压(V)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="current" label="电流(A)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="activePower" label="有功功率(KW)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="reactivePower" label="无功功率(KVar)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="powerFactor" label="功率因数">
+
+                                            </el-table-column>
+                                            <el-table-column prop="voltageHarmonics" label="电压谐波(V)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="currentHarmonics" label="电流谐波(A)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="temperH" label="温度-H(℃)">
+
+                                            </el-table-column>
+                                            <el-table-column prop="temperL" label="温度-L(℃)">
+
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="deviceCode"
+                                        label="设备编号"
+                                        align="center"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="deviceName"
+                                        label="设备名称"
+                                        align="center"
+                                        width="120">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="deviceType"
+                                        align="center"
+                                        label="设备类型">
+                                </el-table-column>
+                                <el-table-column
+                                        align="center"
+                                        width="210"
+                                        label="最后采集时间">
+                                    <template slot-scope="scope">
+                                        <i class="el-icon-time"></i>
+                                        <span style="padding-left: 10px;">{{scope.row.lastTime}}</span>
+                                    </template>
+
+                                </el-table-column>
+                                <el-table-column
+                                        prop="loadRate"
+                                        align="center"
+                                        width="100"
+                                        label="负载">
+                                    <template slot-scope="scope">
+                                        {{scope.row.loadRate}}%
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="transformerCapacity"
+                                        align="center"
+                                        width="120"
+                                        label="变压器容量">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="status"
+                                        align="center"
+                                        label="状态"
+                                        width="120">
+                                    <template slot-scope="scope">
+                                    <span v-if="scope.row.status == 1" style="height: 50px;line-height: 30px;">
+                                        <i class="el-icon-circle-check" style="font-size: 20px;color: green;"></i>运行中
+                                    </span>
+
+                                        <span v-if="scope.row.status != 1" style="height: 50px;line-height: 30px;">
+                                        <i  class="el-icon-circle-close" style="font-size: 20px;color: red;"></i>停运
+                                    </span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed="right"
+                                        align="center"
+                                        width="140"
+                                        label="报警信息">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" type="danger" @click="alert(scope.row.deviceCode)">报警信息</el-button>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        fixed="right"
+                                        align="center"
+                                        label="位置信息"
+                                        width="100">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" type="success" @click="alert(scope.row.deviceCode)">查看</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <div style="text-align: right;margin-top: 5px;">
+                                <el-pagination
+                                        background
+                                        layout="prev, pager, next,total,jumper"
+                                        :total="1000">
+                                </el-pagination>
+                            </div>
+                        </div>
+                        <div v-if="activeArea == 2">
+                            123
+                        </div>
+                </el-main>
+                <!--<el-footer>Footer</el-footer>-->
+            </el-container>
+        </el-container>
+    </el-container>
+</div>
+<script>
+    let windowSize = {
+        width : document.documentElement.clientWidth,
+        height : document.documentElement.clientHeight
+    };
+    $(function () {
+        $(window).resize(function(){
+            let windowWidth = document.documentElement.clientWidth;
+            let windowHeight = document.documentElement.clientHeight;
+            windowSize.width = windowWidth;
+            windowSize.height = windowHeight;
+        });
+    });
+    let item = {
+        deviceCode: '863920031467884',
+        deviceName: '终端7',
+        deviceType: '柱上变压器 全绝缘变台',
+        lastTime : '2019-06-21 08:31:26',
+        loadRate : 1632.00,
+        transformerCapacity : 315,
+        status : 1,
+        data : [
+            {title : "A相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
+            {title : "B相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
+            {title : "C相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
+            {title : "N相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0}
+        ]
+    };
+    let equList = [
+        {id : 1,name : "南开大学",children : [{id : 11,name : "设备1"}]},
+        {id : 2,name : "上海汽车地毯(铁岭)汽车材料有限公司",children : [{id : 12,name : "设备1"}]},
+        {id : 3,name : "国网辽阳供电公司",children : [{id : 13,name : "设备1"}]},
+        {id : 4,name : "国网辽阳供电公司弓长岭分公司",children : [{id :14,name : "设备1"}]},
+        {id : 5,name : "国网铁岭供电公司",children : [{id : 15,name : "设备1"}]},
+        {id : 6,name : "南开大学",children : [{id : 16,name : "设备1"}]},
+        {id : 7,name : "铁岭市政管修处",children : [{id : 17,name : "设备1"}]},
+        {id : 8,name : "辽宁紫科环保科技有限公司",children : [{id : 18,name : "设备1"}]},
+    ];
+    let list = [];
+    for(let i = 0;i < 20;i++){
+        let obj = Object.assign({},item);
+        obj.deviceName += i;
+        list.push(obj);
+    }
+    let root =
+    new Vue({
+        el : "#root",
+        data : {
+            windowSize : windowSize,
+            activeArea : "1",
+            tableData: list,
+            equList : equList
+        },
+        methods : {
+            changeArea : function(){
+                console.log(1);
+            },
+            menuOpen : function(param1){
+                console.log(param1);
+            },
+            menuClose : function(param1){
+                console.log(param1);
+            },
+            formatNodeStr : function(node){
+                console.log(node);
+                return node.data.name;
+            }
+        }
+    });
+</script>
 </body>
 </html>

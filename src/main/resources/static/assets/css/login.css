@@ -1,0 +1,134 @@
+/* 用户登录css页样式 */
+@charset "utf-8";
+html,body{height:100%}
+html{overflow-y:auto;font-family: 'Microsoft YaHei';}
+body{font:12px arial;background:#fff}
+body,p,form,ul,li{margin:0;padding:0;list-style:none}
+body,form{position:relative}
+td{text-align:left}
+img{border:0}
+input{border:0;padding:0}
+ul{list-style:none}
+*, :after, :before {box-sizing: border-box;}
+.fl {float: left;}
+.cf {zoom: 1;}
+.zm{width:100%;overflow-y:hidden}
+.zm-box{width:100%;height:100%}
+.reg_main_content{overflow-y:hidden;height:100%;}
+.zm-login .main_middle{position:relative;width:100%;height:100%;min-width:880px;min-height:800px}
+.zm-login .main_middle .left-part{position:relative;float:left;width:60%;height:100%;background-image:url(/assets/images/login_left_bgs.png);background-position:center bottom;background-size:cover;background-repeat:no-repeat}
+.zm-login .main_middle .right-part{position:relative;float:left;width:40%;height:100%}
+.zm-login .main_middle .left-part .left-part-info{width:100%;padding-left: 40px}
+.login_left_img{position:relative;top:0;margin:80px auto;text-align:center;}
+.login_left_img1{
+    width:80%
+}
+.left-part-info {
+    -webkit-animation: bottomFadeIn 1.4s linear forwards;
+    -webkit-animation-delay: 0.1s;
+}
+@keyframes bottomFadeIn{
+    0%{-webkit-transform:translateY(40%);opacity:0;}
+    100%{-webkit-transform:translateY(0);opacity:1;}
+}
+
+
+/* 用户登录 */
+
+.reg_box_title {
+    font-size: 57px;
+    color: #00c2de;
+    text-align: center;
+    margin: 170px 0 40px;
+    letter-spacing: 7px;
+}
+/*pc端*/
+@media screen and (min-width: 768px) and (max-width: 1440px){
+    .reg_box_title {
+        font-size: 46px;
+        margin: 60px 0 40px;
+        letter-spacing: 4px;
+    }
+    /*.zm-login .main_middle{min-height:600px}
+    .zm-login .main_middle .left-part .left-part-info .login_left_img{height:340px;}
+    .reg_box {margin: 10px 0 0 50px;}
+    .reg_box_title {font-size: 40px;}
+    .login-box .ivu-form-item {margin-bottom: 20px;}
+    .login_left_img{margin: 130px auto 70px;}
+    .zm-login .main_middle .left-part .title-left {
+        font-size: 20px;
+    }
+    .zm-login .main_middle .left-part .last-one {
+        font-size: 16px;
+    }
+    .login-submit{ margin-top: 30px;}*/
+}
+
+.form-con {
+    width: 400px;
+    height: 460px;
+    margin: 0 auto;
+    border: 1px solid #00c2de;
+    border-radius: 6px;
+}
+.form-title {
+    color: #00c2de;
+    text-align: center;
+    font-size: 34px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    margin: 24px;
+}
+.dlkbj {
+    margin-left: 44px;
+}
+.dlkbj input {
+    width: 300px;
+    height: 50px;
+    margin: 10px 0;
+    background: #E8F0FE;
+    border: 1px solid #fff;
+    border-radius: 6px;
+    font-size:22px;
+    padding-left: 52px;
+    outline:none
+}
+
+.font-group{
+    position:relative;
+}
+.dlkbj label {
+    position: absolute;
+    top: 11px;
+    left: 3px;
+    background: #00c2de;
+    width: 40px;
+    height: 46px;
+    text-align: center;
+    line-height: 50px;
+    border-bottom-left-radius: 6px;
+    border-top-left-radius: 6px;
+}
+.dlkbj label i{
+    line-height:50px;
+    color:#fff;
+    font-size: 24px;
+}
+#validecode {
+    width:190px;
+    margin-right:10px
+}
+#img_ValidateCode {
+    width: 100px;
+    position: absolute;
+    top: 10px;
+    height: 48px;
+    border: 1px solid #fff;
+    border-radius: 6px;
+}
+#btn_Login {
+    background: #00c2de;
+    color: #fff;
+    margin: 40px 0;
+    padding: 0;
+}

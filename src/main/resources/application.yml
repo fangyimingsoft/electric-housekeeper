@@ -23,10 +23,9 @@ spring:
     prefix: classpath:/templates/
     cache: false
 
-
 logging:
   level:
-    root:
+    root: INFO
 
 
 

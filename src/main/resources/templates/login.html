@@ -1,0 +1,90 @@
+<html >
+<head>
+    <link href="/assets/css/login.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>智能电管家</title>
+    <link href="/assets/css/font-asowen.css" rel="stylesheet">
+    <script src="/assets/lib/axios.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(function () {
+            let loginButton = document.getElementById("btn_Login");
+            loginButton.addEventListener("click",function(){
+                let username = $("#username").val();
+                let password = $("#password").val();
+                let formData = new FormData();
+                formData.append("username",username);
+                formData.append("password",password);
+                axios({
+                    method : "post",
+                    url : "/login",
+                    data : formData
+                }).then(function(config){
+                    if(config.data.status == 1){
+                        location.href = "/index";
+                    }else{
+                        alert(config.data.message);
+                    }
+                }).catch(function(e){
+                    alert("服务器异常");
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="zm-box">
+    <div class="reg_main_content zm-login">
+        <div class="main_middle">
+            <div class="left-part">
+                <div class="login_left_img">
+                    <img src="/assets/images/login_img.png" class="login_left_img1" alt="">
+                </div>
+            </div>
+            <div class="right-part">
+                <div class="reg_box">
+                    <div class="reg_box_title">业务管理系统</div>
+                    <form method="post" action="./" id="form1" class="form-con">
+                        <div class="aspNetHidden">
+                            <input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKMTI1MTk2NDQzM2Rkzh50d4dxWOgf6KXnxRBxeMPllZc037vxylLigwvmtd8=">
+                        </div>
+
+                        <div class="aspNetHidden">
+
+                            <input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="C2EE9ABB">
+                            <input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAAVuhTSN2ZDj6eiyLW4on/sdR1LBKX1P1xh290RQyTesRVFxjAVaUI+KLMg1tSDWyccGEcDwqZuTU3lSpX4ZmrETcNVahIS9ELOYiVfSrKelegS/QjKeMJyjICiFDQnjMMwjnSZYXwrm+GUVH2RqsUPE">
+                        </div>
+                        <h3 class="form-title">欢迎登录</h3>
+                        <div class="dlkbj">
+                            <div class="font-group">
+                                <label><i class="fa fa-user fa-lg"></i></label>
+                                <input name="UserName" type="text" id="username" class="yhm" placeholder="用户名">
+                            </div>
+                            <div class="font-group">
+                                <label><i class="fa fa-unlock-alt fa-lg"></i></label>
+                                <input name="UserPwd" maxlength="20" id="password" class="ma" placeholder="密码" type="password">
+                            </div>
+                            <!--<div class="font-group">
+                                <label><i class="fa fa-shield fa-lg"></i></label>
+                                <input name="validecode" type="text" maxlength="6" id="validecode" class="yzm" placeholder="验证码">
+                                <a href="#" class="yzmt"><img id="img_ValidateCode" border="0" src="Manager/AgentWeb/ValidateCode.aspx" onclick="this.src='Manager/AgentWeb/ValidateCode.aspx?t='+Math.random()" alt="点击更换验证码"></a>
+                            </div>-->
+                            <a href="#" class="dlan">
+
+                                <input type="button" name="btn_Login" value="登  录" id="btn_Login" class="inputdenglu">
+                            </a>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body></html>

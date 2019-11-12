@@ -15,7 +15,10 @@ public class User {
     @Column
     @Id
     private Long id;
-    @Column
-    private String name;
+    @Column(unique = true,nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
 
 }
