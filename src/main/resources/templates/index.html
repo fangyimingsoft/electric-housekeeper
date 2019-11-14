@@ -50,7 +50,7 @@
     </style>
 </head>
 <body>
-<div id="root">
+<div id="root" v-cloak>
     <el-container :style="{width : windowSize.width + 'px',height : windowSize.height + 'px'}">
         <el-header style="text-align: right;">
             <el-button size="mini">客户端下载</el-button>
@@ -105,13 +105,13 @@
                         <el-menu-item index="7">业务报表</el-menu-item>
                     </el-menu>
                         <!--设备编号	设备名称	设备类型	最后采集时间	负载	变压器容量	状态	报警信息	位置信息-->
-                        <div v-if="activeArea == 1">
+                        <div v-show="activeArea == 1" class="datatable-container">
                             <el-table
                                     :data="tableData"
                                     border
                                     stripe
                                     :max-height="windowSize.height - 250 + 'px'"
-                                    style="width: 100%;margin-top: 30px;">
+                                    style="width: 100%;">
                                 <el-table-column type="expand">
                                     <template slot-scope="props">
                                         <el-table :data="props.row.data" border size="mini">
@@ -232,11 +232,122 @@
                                 </el-pagination>
                             </div>
                         </div>
-                        <div v-if="activeArea == 2">
-                            123
+                        <div v-show="activeArea == 2" class="datatable-container">
+                            <el-form :inline="true" :model="warningInfo.searchForm">
+                                <el-form-item label="报警日期">
+                                    <el-date-picker type="date" placeholder="选择日期" v-model="warningInfo.searchForm.startDate"></el-date-picker>
+                                    <span style="width: 30px;text-align: center;display: inline-block;">至</span>
+                                    <el-date-picker type="date" placeholder="选择日期" v-model="warningInfo.searchForm.endDate"></el-date-picker>
+                                </el-form-item>
+                                <el-form-item label="报警类型">
+                                    <el-select v-model="warningInfo.searchForm.region">
+                                        <el-option label="电流不平衡" value="shanghai"></el-option>
+                                        <el-option label="过流报警" value="beijing"></el-option>
+                                        <el-option label="移动侦测报警" value="xx"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="报警区域">
+                                    <el-input v-model="warningInfo.searchForm.region"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="">查询</el-button>
+                                </el-form-item>
+                            </el-form>
+                            <el-table
+                                    :data="warningList"
+                                    border
+                                    stripe
+                                    :max-height="windowSize.height - 315 + 'px'"
+                                    style="width: 100%;">
+                                <el-table-column
+                                        prop="order"
+                                        label="序号"
+                                        align="center"
+                                        width="120">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="id"
+                                        label="ID"
+                                        align="center"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="companyName"
+                                        align="center"
+                                        label="公司名称">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="deviceName"
+                                        align="center"
+                                        width="230"
+                                        label="设备名称">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="alarmType"
+                                        align="center"
+                                        width="130"
+                                        label="报警类型">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="alarmPosition"
+                                        align="center"
+                                        width="130"
+                                        label="报警位置">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="alarmValue"
+                                        align="center"
+                                        label="报警值"
+                                        width="120">
+                                    <template slot-scope="scope">
+                                        <el-button v-if="scope.row.alarmType == 2" size="mini" type="warning" @click="warningInfo.warningPicDialogShow = true;warningInfo.warningPicId = scope.row.id">查看</el-button>
+                                        <span v-else>{{scope.row.alarmValue}}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="alarmTime"
+                                        align="center"
+                                        width="200"
+                                        label="报警时间">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="status"
+                                        align="center"
+                                        label="当前状态"
+                                        width="110">
+                                    <template slot-scope="scope">
+                                        <el-button :icon="scope.row.status == 0 ? 'el-icon-remove-outline' : 'el-icon-circle-check'" :type="scope.row.status == 0 ? 'warning' : 'success'" size="mini">{{scope.row.status == 0 ? '待处理' : '已处理'}}</el-button>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column
+                                        prop="handleMethod"
+                                        align="center"
+                                        label="处理方式"
+                                        width="100">
+                                    <template slot-scope="scope">
+                                        <el-button type="success" size="mini" @click="drawer = true;drawerTitle = scope.row.deviceName">查看</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <div style="text-align: right;margin-top: 5px;">
+                                <el-pagination
+                                        background
+                                        layout="prev, pager, next,total,jumper"
+                                        :total="1000">
+                                </el-pagination>
+                            </div>
+                            <el-drawer
+                                    :title="drawerTitle"
+                                    :visible.sync="drawer"
+                                    size="500px"
+                                    direction="rtl">
+                                <span>我来啦!</span>
+                            </el-drawer>
+                            <el-dialog title="报警抓拍" width="750px" :visible.sync="warningInfo.warningPicDialogShow">
+                                <img src="https://www.baidu.com" style="width: 100%;height: 400px"/>
+                            </el-dialog>
                         </div>
                 </el-main>
-                <!--<el-footer>Footer</el-footer>-->
             </el-container>
         </el-container>
     </el-container>
@@ -289,10 +400,249 @@
     new Vue({
         el : "#root",
         data : {
+            warningInfo : {
+                searchForm : {},
+                warningPicId : null,
+                warningPicDialogShow : false
+            },
+            drawer : false,
+            drawerTitle : null,
             windowSize : windowSize,
             activeArea : "1",
             tableData: list,
-            equList : equList
+            equList : equList,
+            warningList : [{
+                order : 1,
+                id : 1,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 2,
+                alarmPosition : "报警位置",
+                alarmValue : 19,
+                alarmTime : "2018-10-11 12:31",
+                status : 0,
+                handleMethod : "处理方式"
+            },{
+                order : 2,
+                id : 2,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 1,
+                alarmPosition : "报警位置",
+                alarmValue : 11,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 3,
+                id : 3,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 3,
+                alarmPosition : "报警位置",
+                alarmValue : 20,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 4,
+                id : 4,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 2,
+                alarmPosition : "报警位置",
+                alarmValue : 18.1,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 5,
+                id : 5,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 4,
+                alarmPosition : "报警位置",
+                alarmValue : 10,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            },{
+                order : 6,
+                id : 6,
+                companyName : "公司名称",
+                deviceName : "设备名称",
+                alarmType : 5,
+                alarmPosition : "报警位置",
+                alarmValue : 12.0,
+                alarmTime : "2018-10-11 12:31",
+                status : 1,
+                handleMethod : "处理方式"
+            }]
         },
         methods : {
             changeArea : function(){
