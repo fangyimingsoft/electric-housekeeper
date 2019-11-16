@@ -6,3 +6,18 @@ html,body{
 .datatable-container{
     padding-top: 30px;
 }
+
+.search-area{
+    padding: 15px;
+    border: 1px #ffe2e2 solid;
+    border-radius: 5px;
+    margin-bottom: 25px;
+}
+
+.form-item-no-margin .el-form-item{
+    margin-bottom: 0px;
+}
+
+.his-echarts-area{
+    height: 400px;
+}
