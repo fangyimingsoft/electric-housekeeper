@@ -5,6 +5,7 @@ html,body{
 
 .datatable-container{
     padding-top: 30px;
+    /*overflow: auto;*/
 }
 
 .search-area{

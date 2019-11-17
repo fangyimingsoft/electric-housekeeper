@@ -52,14 +52,60 @@
         td{
             text-align: center;
         }
+
+        .table-bordered {
+            border: 1px solid #ddd;
+        }
+        .table {
+            width: 100%;
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
+        table {
+            background-color: transparent;
+        }
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+
+        caption {
+            text-align: center;
+            font-size: 20px;
+            color: #000;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            color: #777;
+        }
+
+        table tr:first-child .blue {
+            border: none;
+            background: #6495ED;
+        }
+
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+            padding: 8px;
+            line-height: 1.42857143;
+            vertical-align: top;
+            border-top: 1px solid #ddd;
+        }
+
+        .table-bordered>tbody>tr>td, .table-bordered>tbody>tr>th, .table-bordered>tfoot>tr>td, .table-bordered>tfoot>tr>th, .table-bordered>thead>tr>td, .table-bordered>thead>tr>th {
+            border: 1px solid #ddd;
+        }
+
+        table tr:last-child .blue {
+            border: none;
+            background: #6495ED;
+        }
     </style>
 </head>
 <body>
 <div id="root" v-cloak>
     <el-container :style="{width : windowSize.width + 'px',height : windowSize.height + 'px'}">
         <el-header style="text-align: right;">
-            <el-button size="mini">客户端下载</el-button>
-            <el-button size="mini">管理入口</el-button>
+            <el-button size="mini" class="header-button">客户端下载</el-button>
+            <el-button size="mini" @click="linkToManagement">管理入口</el-button>
             <el-button size="mini">修改密码</el-button>
             <el-button size="mini">退出登录</el-button>
         </el-header>
@@ -107,103 +153,108 @@
                         <el-menu-item index="4">数据分析</el-menu-item>
                         <el-menu-item index="5">设备位置</el-menu-item>
                         <el-menu-item index="6">安防监控</el-menu-item>
-                        <el-menu-item index="7">业务报表</el-menu-item>
+                        <el-submenu index="7">
+                            <template slot="title">业务报表</template>
+                            <el-menu-item index="7-1">月报</el-menu-item>
+                            <el-menu-item index="7-2">季报</el-menu-item>
+                            <el-menu-item index="7-3">年报</el-menu-item>
+                        </el-submenu>
                     </el-menu>
                         <!--设备编号	设备名称	设备类型	最后采集时间	负载	变压器容量	状态	报警信息	位置信息-->
-                        <div v-show="activeArea == 1" class="datatable-container">
-                            <el-table
-                                    :data="tableData"
-                                    border
-                                    stripe
-                                    :max-height="windowSize.height - 250 + 'px'"
-                                    style="width: 100%;">
-                                <el-table-column type="expand">
-                                    <template slot-scope="props">
-                                        <el-table :data="props.row.data" border size="mini">
-                                            <el-table-column prop="title" label="">
+                    <div v-show="activeArea == 1" class="datatable-container">
+                        <el-table
+                                :data="tableData"
+                                border
+                                stripe
+                                :max-height="windowSize.height - 250 + 'px'"
+                                style="width: 100%;">
+                            <el-table-column type="expand">
+                                <template slot-scope="props">
+                                    <el-table :data="props.row.data" border size="mini">
+                                        <el-table-column prop="title" label="">
 
-                                            </el-table-column>
-                                            <el-table-column prop="voltage" label="电压(V)">
+                                        </el-table-column>
+                                        <el-table-column prop="voltage" label="电压(V)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="current" label="电流(A)">
+                                        </el-table-column>
+                                        <el-table-column prop="current" label="电流(A)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="activePower" label="有功功率(KW)">
+                                        </el-table-column>
+                                        <el-table-column prop="activePower" label="有功功率(KW)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="reactivePower" label="无功功率(KVar)">
+                                        </el-table-column>
+                                        <el-table-column prop="reactivePower" label="无功功率(KVar)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="powerFactor" label="功率因数">
+                                        </el-table-column>
+                                        <el-table-column prop="powerFactor" label="功率因数">
 
-                                            </el-table-column>
-                                            <el-table-column prop="voltageHarmonics" label="电压谐波(V)">
+                                        </el-table-column>
+                                        <el-table-column prop="voltageHarmonics" label="电压谐波(V)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="currentHarmonics" label="电流谐波(A)">
+                                        </el-table-column>
+                                        <el-table-column prop="currentHarmonics" label="电流谐波(A)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="temperH" label="温度-H(℃)">
+                                        </el-table-column>
+                                        <el-table-column prop="temperH" label="温度-H(℃)">
 
-                                            </el-table-column>
-                                            <el-table-column prop="temperL" label="温度-L(℃)">
+                                        </el-table-column>
+                                        <el-table-column prop="temperL" label="温度-L(℃)">
 
-                                            </el-table-column>
-                                        </el-table>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column
-                                        prop="deviceCode"
-                                        label="设备编号"
-                                        align="center"
-                                        width="180">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="deviceName"
-                                        label="设备名称"
-                                        align="center"
-                                        width="120">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="deviceType"
-                                        align="center"
-                                        label="设备类型">
-                                </el-table-column>
-                                <el-table-column
-                                        align="center"
-                                        width="210"
-                                        label="最后采集时间">
-                                    <template slot-scope="scope">
-                                        <i class="el-icon-time"></i>
-                                        <span style="padding-left: 10px;">{{scope.row.lastTime}}</span>
-                                    </template>
+                                        </el-table-column>
+                                    </el-table>
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="deviceCode"
+                                    label="设备编号"
+                                    align="center"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="deviceName"
+                                    label="设备名称"
+                                    align="center"
+                                    width="120">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="deviceType"
+                                    align="center"
+                                    label="设备类型">
+                            </el-table-column>
+                            <el-table-column
+                                    align="center"
+                                    width="210"
+                                    label="最后采集时间">
+                                <template slot-scope="scope">
+                                    <i class="el-icon-time"></i>
+                                    <span style="padding-left: 10px;">{{scope.row.lastTime}}</span>
+                                </template>
 
-                                </el-table-column>
-                                <el-table-column
-                                        prop="loadRate"
-                                        align="center"
-                                        width="100"
-                                        label="负载">
-                                    <template slot-scope="scope">
-                                        {{scope.row.loadRate}}%
-                                    </template>
-                                </el-table-column>
-                                <el-table-column
-                                        prop="transformerCapacity"
-                                        align="center"
-                                        width="120"
-                                        label="变压器容量">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="status"
-                                        align="center"
-                                        label="状态"
-                                        width="120">
-                                    <template slot-scope="scope">
-                                    <span v-if="scope.row.status == 1" style="height: 50px;line-height: 30px;">
-                                        <i class="el-icon-circle-check" style="font-size: 20px;color: green;"></i>运行中
-                                    </span>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="loadRate"
+                                    align="center"
+                                    width="100"
+                                    label="负载">
+                                <template slot-scope="scope">
+                                    {{scope.row.loadRate}}%
+                                </template>
+                            </el-table-column>
+                            <el-table-column
+                                    prop="transformerCapacity"
+                                    align="center"
+                                    width="120"
+                                    label="变压器容量">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="status"
+                                    align="center"
+                                    label="状态"
+                                    width="120">
+                                <template slot-scope="scope">
+                                <span v-if="scope.row.status == 1" style="height: 50px;line-height: 30px;">
+                                    <i class="el-icon-circle-check" style="font-size: 20px;color: green;"></i>运行中
+                                </span>
 
                                         <span v-if="scope.row.status != 1" style="height: 50px;line-height: 30px;">
                                         <i  class="el-icon-circle-close" style="font-size: 20px;color: red;"></i>停运
@@ -237,7 +288,7 @@
                                 </el-pagination>
                             </div>
                         </div>
-                        <div v-show="activeArea == 2" class="datatable-container">
+                    <div v-show="activeArea == 2" class="datatable-container">
                             <div class="search-area">
                                 <el-form :inline="true" :model="warningInfo.searchForm">
                                     <el-form-item label="报警日期">
@@ -419,53 +470,52 @@
                                             <td>派单</td>
                                             <td id="confirm1"></td>
 
-                                            <td width="20%">派单时间</td>
-                                            <td></td>
-                                            <td width="20%">签字</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td data-width="10px">维修班接单</td>
-                                            <td id="confirm2"></td>
-                                            <td width="20%">接单时间</td>
-                                            <td></td>
-                                            <td>签字</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>维修人员接单</td>
-                                            <td></td>
-                                            <td width="20%">接单时间</td>
-                                            <td></td>
-                                            <td>签字</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>维修完成</td>
-                                            <td></td>
-                                            <td width="20%">维修完成时间</td>
-                                            <td></td>
-                                            <td>签字</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td>结单</td>
-                                            <td></td>
-                                            <td>结单时间</td>
-                                            <td></td>
-                                            <td>签字</td>
-                                            <td></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </el-drawer>
-                            <el-dialog title="报警抓拍" width="750px" :visible.sync="warningInfo.warningPicDialogShow">
-                                <img src="https://www.baidu.com" style="width: 100%;height: 400px"/>
-                            </el-dialog>
-                        </div>
-
-                        <div v-show="activeArea == 3" class="datatable-container">
+                                        <td width="20%">派单时间</td>
+                                        <td></td>
+                                        <td width="20%">签字</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td data-width="10px">维修班接单</td>
+                                        <td id="confirm2"></td>
+                                        <td width="20%">接单时间</td>
+                                        <td></td>
+                                        <td>签字</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>维修人员接单</td>
+                                        <td></td>
+                                        <td width="20%">接单时间</td>
+                                        <td></td>
+                                        <td>签字</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>维修完成</td>
+                                        <td></td>
+                                        <td width="20%">维修完成时间</td>
+                                        <td></td>
+                                        <td>签字</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>结单</td>
+                                        <td></td>
+                                        <td>结单时间</td>
+                                        <td></td>
+                                        <td>签字</td>
+                                        <td></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </el-drawer>
+                        <el-dialog title="报警抓拍" width="750px" :visible.sync="warningInfo.warningPicDialogShow">
+                            <img src="https://www.baidu.com" style="width: 100%;height: 400px"/>
+                        </el-dialog>
+                    </div>
+                    <div v-show="activeArea == 3" class="datatable-container">
                             <div class="search-area">
                                 <el-form :inline="true" :model="warningInfo.searchForm">
                                     <el-form-item label="范围查询">
@@ -744,6 +794,134 @@
                                 </div>
                             </div>
                         </div>
+                    <div v-show="activeArea && activeArea.startsWith('7')" class="datatable-container">
+                        <div class="search-area">
+                            <el-form :inline="true" :model="warningInfo.searchForm">
+                                <div class="form-item-no-margin">
+                                    <el-form-item v-if="activeArea == '7-1'">
+                                        <el-date-picker type="month" placeholder="选择日期" v-model="warningInfo.searchForm.startDate"></el-date-picker>
+                                    </el-form-item>
+                                    <el-form-item label="年份" v-if="activeArea != '7-1'">
+                                        <el-date-picker type="year" placeholder="选择年份" v-model="warningInfo.searchForm.startDate"></el-date-picker>
+                                    </el-form-item>
+                                    <el-form-item v-if="activeArea == '7-2'">
+                                        <el-radio-group v-model="dataReport.season" size="small">
+                                            <el-radio-button label='1' key="1">第一季度</el-radio-button>
+                                            <el-radio-button label='2' key="2">第二季度</el-radio-button>
+                                            <el-radio-button label='3' key="3">第三季度</el-radio-button>
+                                            <el-radio-button label='4' key="4">第四季度</el-radio-button>
+                                        </el-radio-group>
+                                    </el-form-item>
+                                    <el-button type="success">查询</el-button>
+                                </div>
+                            </el-form>
+                        </div>
+                        <table class="table table-striped table-bordered">
+                            <caption id="caption"><b style="color:black;">2019年{{activeArea == '7-1' ? '11月' : (activeArea == '7-2' ? '第1季度' : '')}}用电情况一览表</b></caption>
+                            <tbody><tr style="">
+                                <td colspan="7" style="text-align:left;" class="blue">单位：</td>
+                                <td colspan="3" style="text-align:right" class="blue">2019年11月17日</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="6">生产用电</td>
+                                <td>项目</td>
+                                <td>本月表数</td>
+                                <td>上月表数</td>
+                                <td>倍率</td>
+                                <td>电量</td>
+                                <td>单价</td>
+                                <td>金额</td>
+                                <td>利率</td>
+                                <td>备注</td>
+                            </tr>
+                            <tr>
+                                <td>有功</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>无功</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>峰</td>
+                                <td>NaN</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>谷</td>
+                                <td>NaN</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>平</td>
+                                <td>NaN</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3">注：</td>
+                                <td colspan="2">过载A相( 0 )次</td>
+                                <td colspan="2">缺相A相( 0 )次</td>
+                                <td colspan="2">过热H-A相( 0 )次</td>
+                                <td colspan="2">过热L-A相( 0 )次</td>
+                                <td>过热N相( 0 )次</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">过载B相( 0 )次</td>
+                                <td colspan="2">缺相B相( 0 )次</td>
+                                <td colspan="2">过热H-B相( 0 )次</td>
+                                <td colspan="2">过热L-B相( 0 )次</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">过载C相( 0 )次</td>
+                                <td colspan="2">缺相C相( 0 )次</td>
+                                <td colspan="2">过热H-C相( 0 )次</td>
+                                <td colspan="2">过热L-C相( 0 )次</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="text-align:left;" class="blue"></td>
+                                <td class="blue">审核：</td>
+                                <td class="blue"></td>
+                                <td class="blue">制表：</td>
+                                <td colspan="2" class="blue"></td>
+                            </tr>
+                            </tbody></table>
+                        <div id="monthReportCharts" style="height: 295px;">
+                        </div>
+                    </div>
                 </el-main>
             </el-container>
         </el-container>
@@ -830,19 +1008,23 @@
         obj.deviceName += i;
         list.push(obj);
     }
+    let startTime = new Date().getTime();
     let root =
     new Vue({
         el : "#root",
         data : {
-            warningInfo : {
+            warningInfo : {//告警信息
                 searchForm : {},
                 warningPicId : null,
                 warningPicDialogShow : false
             },
-            historyData : {
+            historyData : {//历史数据
                 showColumn : ['t','c','v','f','h'],
                 echartsInstance : null,
                 list : [],
+            },
+            dataReport : {//数据报表
+                monthReportEcahrstIns : null
             },
             drawer : false,
             drawerTitle : null,
@@ -1089,6 +1271,12 @@
             }
         },
         methods : {
+            linkToManagement : function(){
+                let a = document.createElement("a");
+                a.href="management";
+                a.target = "_blank";
+                a.click();
+            },
             changeArea : function(){
                 console.log(1);
             },
@@ -1179,17 +1367,53 @@
                 this.updateEcharts();
             },
             "activeArea" : function(newValue){
-                if(newValue == '3'){
-                    let that = this;
-                    Vue.nextTick(function(){
-                        that.historyData.echartsInstance.resize();
-                    });
+                switch (newValue) {
+                    case '3' : {
+                        let that = this;
+                        Vue.nextTick(function(){
+                            that.historyData.echartsInstance.resize();
+                        });
+                    }break;
+                    case '7-1' : {
+                        let option = {
+                            title : {
+                                text : '2019年11月用电统计',
+                                //x : 'center'
+                            },
+                            legend: {},
+                            tooltip: {},
+                            dataset: {
+                                source: [
+                                    ['product', '当月', '上月'],
+                                    ['有功', 43.3, 85.8],
+                                    ['无功', 83.1, 73.4],
+                                    ['峰', 86.4, 65.2],
+                                    ['谷', 72.4, 53.9],
+                                    ['平', 72.4, 53.9]
+                                ]
+                            },
+                            xAxis: {type: 'category'},
+                            yAxis: {},
+                            // Declare several bar series, each will be mapped
+                            // to a column of dataset.source by default.
+                            series: [
+                                {type: 'bar',label : {normal : {show : true,position : 'top'}},barWidth : '35px'},
+                                {type: 'bar',label : {normal : {show : true,position : 'top'}},barWidth : '35px'}
+                            ]
+                        };
+                        Vue.nextTick(function(){
+                            let ins = echarts.init(document.getElementById('monthReportCharts'));
+                            ins.setOption(option,{
+                                notMerge : true
+                            });
+                        });
+                    }break;
                 }
             }
         },
         mounted : function(){
             let data = [];
-            for(let i = 0;i < 50;i++){
+            for(let i = 0;i < 10;i++){
                 let obj = {};
                 historyDataColumnInfo.forEach(item=>{
                     obj[item.columnProp] = Math.round(Math.random() * 220);
@@ -1199,7 +1423,11 @@
                 obj['time'] = '2019-10-01 10:10:10';
                 data.push(obj);
             }
-            this.historyData.list = data;
+            //this.historyData.list = data;
+            Vue.nextTick(function(){
+                let endTime = new Date().getTime();
+                console.log("主页Vue加载时间：" + (endTime - startTime));
+            });
         }
     });
 </script>

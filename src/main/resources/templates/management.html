@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>智能电管家-管理</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="../static/assets/css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.4.0-rc.1/echarts-en.min.js"></script>
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="root" v-cloak>
+    <el-container :style="{width : windowSize.width + 'px',height : windowSize.height + 'px'}">
+        <el-header style="padding: 0px;background-color: #1890ff;">
+            <span style="font-weight: bold;font-size: 20px;height:60px;line-height: 60px;padding-left: 15px;color:white;">智能电管家-管理系统</span>
+        </el-header>
+        <el-container>
+            <el-aside width="400px" style="overflow: auto;">
+                <el-menu
+                        @select="function(index){activeArea = index}"
+                        style="height:100%;"
+                        :default-active="activeArea">
+                    <el-menu-item index="1">
+                        <i class="el-icon-user"></i>
+                        <span slot="title">用戶管理</span>
+                    </el-menu-item>
+                    <el-menu-item index="2">
+                        <i class="el-icon-bell"></i>
+                        <span slot="title">设备管理</span>
+                    </el-menu-item>
+                    <el-menu-item index="3">
+                        <i class="el-icon-share"></i>
+                        <span slot="title">设备控制</span>
+                    </el-menu-item>
+                    <el-menu-item index="4">
+                        <i class="el-icon-setting"></i>
+                        <span slot="title">阈值设置</span>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+            <el-container>
+                <el-main :style="{height : windowSize.height - 60 + 'px'}">
+                    <el-card class="box-card" style="height:98%;" v-show="activeArea == '1'">
+                        <div slot="header">
+                            <span>用戶管理</span>
+                            <el-button style="float: right; padding: 3px 0" type="text" @click="addUser">添加用户</el-button>
+                        </div>
+                        <el-table :data="user.userList" stripe :height="windowSize.height - 300 + 'px'">
+                            <el-table-column prop="username" align="center" label="用戶名">
+
+                            </el-table-column>
+                            <el-table-column prop="role" align="center" label="用戶权限">
+
+                            </el-table-column>
+                            <el-table-column prop="name" align="center" label="姓名">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="联系方式">
+
+                            </el-table-column>
+                            <el-table-column align="center" label="状态">
+                                <template slot-scope="scope">
+                                    <el-switch
+                                            v-model="scope.row.active"
+                                            active-text="启用"
+                                            inactive-text="禁用" @change="userStatusChange(scope.row.id,$event);"></el-switch>
+                                </template>
+                            </el-table-column>
+                            <el-table-column align="center" label="操作">
+                                <template slot-scope="scope">
+                                    <el-button type="primary" icon="el-icon-edit" size="small">编辑</el-button>
+                                    <el-button type="danger" icon="el-icon-delete" size="small">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <div style="text-align: right;padding-top:10px;">
+                            <el-pagination
+                                    background
+                                    layout="prev, pager, next"
+                                    :total="1000">
+                            </el-pagination>
+                        </div>
+                    </el-card>
+                    <el-drawer
+                            title="添加用户"
+                            :visible.sync="user.addUserDrawerShow"
+                            direction="ltr">
+                        <el-form label-width="100px" style="padding-right: 25px;" ref="userForm" :model="user.form" :rules="user.userFormRule">
+                            <el-form-item label="用户名" prop="username">
+                                <el-input v-model="user.form.username"></el-input>
+                            </el-form-item>
+                            <el-form-item label="密码" prop="password">
+                                <el-input type="password" v-model="user.form.password"></el-input>
+                            </el-form-item>
+                            <el-form-item label="确认密码" prop="passwordRepeat">
+                                <el-input type="password" v-model="user.form.passwordRepeat"></el-input>
+                            </el-form-item>
+                            <el-form-item label="姓名" prop="name">
+                                <el-input v-model="user.form.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="联系方式" prop="tel">
+                                <el-input v-model="user.form.tel"></el-input>
+                            </el-form-item>
+                            <el-form-item label="权限" placeholder="请选择权限" prop="role">
+                                <el-select  style="width:100%;" v-model="user.form.role">
+                                    <el-option value="用戶">用戶</el-option>
+                                    <el-option value="审核员">审核员</el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="启用" prop="active">
+                                <el-switch v-model="user.form.active"></el-switch>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button>保存</el-button>
+                                <el-button>取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-drawer>
+
+                    <el-card class="box-card" style="height:98%;" v-show="activeArea == '2'">
+                        <div slot="header">
+                            <span>设备管理</span>
+                            <el-button style="float: right; padding: 3px 0" type="text" @click="addDevice">添加设备</el-button>
+                        </div>
+                        <el-table :data="user.userList" stripe :height="windowSize.height - 300 + 'px'">
+                            <el-table-column prop="username" align="center" label="设备编号">
+
+                            </el-table-column>
+                            <el-table-column prop="role" align="center" label="设备型号">
+
+                            </el-table-column>
+                            <el-table-column prop="name" align="center" label="设备名称">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="容量">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="所属单位">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="管理员">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="维修班">
+
+                            </el-table-column>
+                            <el-table-column prop="tel" align="center" label="维修人员">
+
+                            </el-table-column>
+                            <el-table-column align="center" label="操作" width="205">
+                                <template slot-scope="scope">
+                                    <el-button type="primary" icon="el-icon-edit" size="small">编辑</el-button>
+                                    <el-button type="danger" icon="el-icon-delete" size="small">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <div style="text-align: right;padding-top:10px;">
+                            <el-pagination
+                                    background
+                                    layout="prev, pager, next"
+                                    :total="1000">
+                            </el-pagination>
+                        </div>
+                    </el-card>
+                </el-main>
+            </el-container>
+        </el-container>
+    </el-container>
+</div>
+<script>
+    let windowSize = {
+        width : document.documentElement.clientWidth,
+        height : document.documentElement.clientHeight
+    };
+    $(function () {
+        $(window).resize(function(){
+            let windowWidth = document.documentElement.clientWidth;
+            let windowHeight = document.documentElement.clientHeight;
+            windowSize.width = windowWidth;
+            windowSize.height = windowHeight;
+        });
+    });
+    let root =
+    new Vue({
+        el : "#root",
+        data : {
+            windowSize : windowSize,
+            activeArea : "1",
+            user : {
+                addUserDrawerShow : false,
+                userList : [{
+                    id : 1,
+                    username : 'zhangsan',
+                    name : '张三',
+                    role : '管理员',
+                    tel : '15827656732',
+                    status :1,
+                    active : true
+                },{
+                    id : 2,
+                    username : 'lisi',
+                    name : '李四',
+                    role : '用户',
+                    tel : '15827656732',
+                    status : 0,
+                    active : true
+                },{
+                    id :3,
+                    username : '王五',
+                    name : '王五',
+                    role : '用户',
+                    tel : '15827656732',
+                    status :1,
+                    active : false
+                },{
+                    id : 4,
+                    username : 'admin',
+                    name : 'admin',
+                    role : '管理员',
+                    tel : '15827656732',
+                    active : true
+                },{
+                    id : 5,
+                    username : 'zhangsan',
+                    name : '张三',
+                    role : '管理员',
+                    tel : '15827656732',
+                    active : false
+                }],
+                form : {},
+                userFormRule : {
+                    username : [{required : true,message : '请输入用户名'}],
+                    password : [{required: true,message : '请输入密码'}],
+                    passwordRepeat : [{validator : function(a,b,callback){
+                        if(root._data.user.form.password !== null
+                            && root._data.user.form.password !== undefined
+                            && root._data.user.form.password === root._data.user.form.passwordRepeat){
+                            callback();
+                        }else{
+                            callback(new Error("两次输入的密码不匹配"));
+                        }
+                    }}],
+                    name : [{required : true,message : "请输入姓名"}],
+                    tel : [{ required : true,message : "请输入联系方式"}],
+                    role : [{required : true,message : "请选择权限"}]
+                }
+            }
+        },
+        methods : {
+            userStatusChange : function(userId,active){
+
+            },
+            addUser : function(){
+                this.user.addUserDrawerShow = true;
+            }
+        }
+    })
+</script>
+</body>
+</html>

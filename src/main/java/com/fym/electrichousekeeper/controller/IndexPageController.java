@@ -7,6 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
 
 @RequestMapping("/")
 @Controller
@@ -22,6 +23,15 @@ public class IndexPageController {
         HttpSession session = request.getSession(false);
         if(session != null){
             return "index";
+        }
+        return "login";
+    }
+
+    @RequestMapping("management")
+    public String management(HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        if(session != null){
+            return "management";
         }
         return "login";
     }
