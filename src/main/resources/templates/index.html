@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.4.0-rc.1/echarts-en.min.js"></script>
     <style>
         [v-cloak]{
             display: none;
@@ -46,6 +47,10 @@
 
         .el-tree-node:focus>.el-tree-node__content{
             background-color: black;
+        }
+        
+        td{
+            text-align: center;
         }
     </style>
 </head>
@@ -233,31 +238,46 @@
                             </div>
                         </div>
                         <div v-show="activeArea == 2" class="datatable-container">
-                            <el-form :inline="true" :model="warningInfo.searchForm">
-                                <el-form-item label="报警日期">
-                                    <el-date-picker type="date" placeholder="选择日期" v-model="warningInfo.searchForm.startDate"></el-date-picker>
-                                    <span style="width: 30px;text-align: center;display: inline-block;">至</span>
-                                    <el-date-picker type="date" placeholder="选择日期" v-model="warningInfo.searchForm.endDate"></el-date-picker>
-                                </el-form-item>
-                                <el-form-item label="报警类型">
-                                    <el-select v-model="warningInfo.searchForm.region">
-                                        <el-option label="电流不平衡" value="shanghai"></el-option>
-                                        <el-option label="过流报警" value="beijing"></el-option>
-                                        <el-option label="移动侦测报警" value="xx"></el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="报警区域">
-                                    <el-input v-model="warningInfo.searchForm.region"></el-input>
-                                </el-form-item>
-                                <el-form-item>
-                                    <el-button type="primary" @click="">查询</el-button>
-                                </el-form-item>
-                            </el-form>
+                            <div class="search-area">
+                                <el-form :inline="true" :model="warningInfo.searchForm">
+                                    <el-form-item label="报警日期">
+                                        <el-date-picker
+                                                v-model="warningInfo.searchForm.date"
+                                                type="daterange"
+                                                range-separator="至"
+                                                start-placeholder="开始日期"
+                                                end-placeholder="结束日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                    <el-form-item label="报警类型">
+                                        <el-select v-model="warningInfo.searchForm.region">
+                                            <el-option label="电流不平衡" value="shanghai"></el-option>
+                                            <el-option label="过流报警" value="beijing"></el-option>
+                                            <el-option label="移动侦测报警" value="xx"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <div>
+                                        <el-form-item label="当前状态">
+                                            <el-select v-model="warningInfo.searchForm.status">
+                                                <el-option label="待处理" value="shanghai"></el-option>
+                                                <el-option label="已忽略" value="beijing"></el-option>
+                                                <el-option label="已处理" value="xx"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item label="报警区域">
+                                            <el-input v-model="warningInfo.searchForm.region"></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="">查询</el-button>
+                                        </el-form-item>
+                                    </div>
+                                </el-form>
+                            </div>
                             <el-table
                                     :data="warningList"
                                     border
                                     stripe
-                                    :max-height="windowSize.height - 315 + 'px'"
+                                    :max-height="windowSize.height - 431 + 'px'"
                                     style="width: 100%;">
                                 <el-table-column
                                         prop="order"
@@ -337,15 +357,392 @@
                                 </el-pagination>
                             </div>
                             <el-drawer
-                                    :title="drawerTitle"
                                     :visible.sync="drawer"
-                                    size="500px"
+                                    size="850px"
                                     direction="rtl">
-                                <span>我来啦!</span>
+                                <div id="printArea">
+                                    <h3 align="center">维修处理单</h3>
+                                    <table width="800" height="542" border="1" cellpadding="0" cellspacing="0" align="center" style="table-layout: fixed;font-size: 12px;">
+                                        <caption><h4>维修单号：<input type="text" id="SN" value="" size="12" style="border:0px;border-bottom:#000000 1px solid;background:none;">
+                                            生成时间：<input type="text" id="time" value="" size="12" style="border:0px;border-bottom:#000000 1px solid;background:none;"></h4></caption>
+                                        <tbody>
+                                        <tr>
+                                            <td rowspan="3" width="15">报警信息</td>
+                                            <td width="110">报警时间</td>
+                                            <td width="110" id="time"></td>
+                                            <td width="50">设备名称</td>
+                                            <td width="100" id="equip"></td>
+                                            <td width="50">所属单位</td>
+                                            <td width="120"></td>
+                                        </tr>
+                                        <tr>
+                                            <td width="20%">报警类型</td>
+                                            <td id="style"></td>
+                                            <td width="20%">设定阈值</td>
+                                            <td id="th"></td>
+                                            <td width="20%">报警值</td>
+                                            <td id="data"></td>
+                                        </tr>
+                                        <tr>
+                                            <td width="20%">设备地址*</td>
+                                            <td colspan="3"></td>
+                                            <td width="20%"><span style="color:#F00">维修状态<span></span></span></td>
+                                            <td id="status"></td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="3">管理人员信息</td>
+                                            <td>一级管理员（账号）</td>
+                                            <td></td>
+                                            <td>姓名</td>
+                                            <td></td>
+                                            <td>电话</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>一级管理员（账号）</td>
+                                            <td></td>
+                                            <td>姓名</td>
+                                            <td></td>
+                                            <td>电话</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>三级管理员（账号）</td>
+                                            <td contenteditable="true"></td>
+                                            <td >姓名</td>
+                                            <td contenteditable="true"></td>
+                                            <td>电话</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td rowspan="5">维修确认信息</td>
+                                            <td>派单</td>
+                                            <td id="confirm1"></td>
+
+                                            <td width="20%">派单时间</td>
+                                            <td></td>
+                                            <td width="20%">签字</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td data-width="10px">维修班接单</td>
+                                            <td id="confirm2"></td>
+                                            <td width="20%">接单时间</td>
+                                            <td></td>
+                                            <td>签字</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>维修人员接单</td>
+                                            <td></td>
+                                            <td width="20%">接单时间</td>
+                                            <td></td>
+                                            <td>签字</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>维修完成</td>
+                                            <td></td>
+                                            <td width="20%">维修完成时间</td>
+                                            <td></td>
+                                            <td>签字</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>结单</td>
+                                            <td></td>
+                                            <td>结单时间</td>
+                                            <td></td>
+                                            <td>签字</td>
+                                            <td></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </el-drawer>
                             <el-dialog title="报警抓拍" width="750px" :visible.sync="warningInfo.warningPicDialogShow">
                                 <img src="https://www.baidu.com" style="width: 100%;height: 400px"/>
                             </el-dialog>
+                        </div>
+
+                        <div v-show="activeArea == 3" class="datatable-container">
+                            <div class="search-area">
+                                <el-form :inline="true" :model="warningInfo.searchForm">
+                                    <el-form-item label="范围查询">
+                                        <el-date-picker
+                                                v-model="historyData.search"
+                                                type="daterange"
+                                                range-separator="至"
+                                                start-placeholder="开始日期"
+                                                end-placeholder="结束日期">
+                                        </el-date-picker>
+                                    </el-form-item>
+                                    <el-form-item label="单日查询">
+                                        <el-date-picker type="date" placeholder="选择日期" v-model="warningInfo.searchForm.startDate"></el-date-picker>
+                                    </el-form-item>
+                                    <div class="form-item-no-margin">
+                                        <el-form-item label="显示数据">
+                                            <el-checkbox-group v-model="historyData.showColumn" size="small">
+                                                <el-checkbox-button label="t" key="t">温度</el-checkbox-button>
+                                                <el-checkbox-button label="v" key="v">电压</el-checkbox-button>
+                                                <el-checkbox-button label="c" key="c">电流</el-checkbox-button>
+                                                <el-checkbox-button label="f" key="f">功率</el-checkbox-button>
+                                                <el-checkbox-button label="h" key="h">谐波</el-checkbox-button>
+                                            </el-checkbox-group>
+                                        </el-form-item>
+                                    </div>
+                                </el-form>
+                            </div>
+                            <el-table
+                                    size="small"
+                                    :data="historyData.list"
+                                    border
+                                    stripe
+                                    :height="windowSize.height - 750 + 'px'"
+                                    :max-height="windowSize.height - 750 + 'px'"
+                                    style="width: 100%;">
+                                <el-table-column
+                                        prop="order"
+                                        label="序号"
+                                        align="center"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="time"
+                                        label="时间"
+                                        align="center"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperHA"
+                                        align="center"
+                                        width="60"
+                                        label="H-A相温度">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperHB"
+                                        align="center"
+                                        width="60"
+                                        label="H-B相温度">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperHC"
+                                        align="center"
+                                        width="60"
+                                        label="H-C相温度">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperLA"
+                                        align="center"
+                                        width="60"
+                                        label="L-A相温度">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperLB"
+                                        align="center"
+                                        label="L-B相温度"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperLC"
+                                        align="center"
+                                        width="60"
+                                        label="L-C相温度">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('t') != -1"
+                                        prop="temperN"
+                                        align="center"
+                                        label="N相温度"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('v') != -1"
+                                        prop="voltageA"
+                                        align="center"
+                                        label="A相电压"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('v') != -1"
+                                        prop="voltageB"
+                                        align="center"
+                                        label="B相电压"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('v') != -1"
+                                        prop="voltageC"
+                                        align="center"
+                                        label="C相电压"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('c') != -1"
+                                        prop="currentA"
+                                        align="center"
+                                        label="A相电流"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('c') != -1"
+                                        prop="currentB"
+                                        align="center"
+                                        label="B相电流"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('c') != -1"
+                                        prop="currentC"
+                                        align="center"
+                                        label="C相电流"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="activePowerA"
+                                        align="center"
+                                        label="A相有功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="activePowerB"
+                                        align="center"
+                                        label="B相有功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="activePowerC"
+                                        align="center"
+                                        label="C相有功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="totalActivePower"
+                                        align="center"
+                                        label="总有功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="reactivePowerA"
+                                        align="center"
+                                        label="A相无功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="reactivePowerB"
+                                        align="center"
+                                        label="B相无功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="reactivePowerC"
+                                        align="center"
+                                        label="C相无功功率"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="totalReactivePower"
+                                        align="center"
+                                        label="总无功功率"
+                                        width="60">
+                                </el-table-column>
+
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="powerFactorA"
+                                        align="center"
+                                        label="A相功率因数"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="powerFactorB"
+                                        align="center"
+                                        label="B相功率因数"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="powerFactorC"
+                                        align="center"
+                                        label="C相功率因数"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('f') != -1"
+                                        prop="totalPowerFactor"
+                                        align="center"
+                                        label="总功率因数"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="voltageHarmonicsA"
+                                        align="center"
+                                        label="A相电压谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="voltageHarmonicsB"
+                                        align="center"
+                                        label="B相电压谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="voltageHarmonicsC"
+                                        align="center"
+                                        label="C相电压谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="currentHarmonicsA"
+                                        align="center"
+                                        label="A相电流谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="currentHarmonicsB"
+                                        align="center"
+                                        label="B相电流谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        v-if="historyData.showColumn.indexOf('h') != -1"
+                                        prop="currentHarmonicsC"
+                                        align="center"
+                                        label="C相电流谐波"
+                                        width="60">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="totalPower"
+                                        align="center"
+                                        label="累计电能"
+                                        width="100">
+                                </el-table-column>
+                            </el-table>
+                            <div class="his-echarts-area">
+                                <div id="echartsInstance" style="height: 400px;">
+
+                                </div>
+                            </div>
                         </div>
                 </el-main>
             </el-container>
@@ -353,6 +750,43 @@
     </el-container>
 </div>
 <script>
+    let historyDataColumnInfo = [
+        {columnProp : 'temperHA',columnGroup : 't',columnName : 'H-A温度'},
+        {columnProp : 'temperHB',columnGroup : 't',columnName : "H-B温度"},
+        {columnProp : 'temperHC',columnGroup : 't',columnName : "H-C温度"},
+        {columnProp : 'temperLA',columnGroup : 't',columnName : "L-A温度"},
+        {columnProp : 'temperLB',columnGroup : 't',columnName : "L-B温度"},
+        {columnProp : 'temperLC',columnGroup : 't',columnName : "L-C温度"},
+        {columnProp : 'temperN',columnGroup : 't',columnName : "N相温度"},
+
+        {columnProp : 'currentA',columnGroup : 'c',columnName : "A相电流"},
+        {columnProp : 'currentB',columnGroup : 'c',columnName : "B相电流"},
+        {columnProp : 'currentC',columnGroup : 'c',columnName : "C相电流"},
+
+        {columnProp : 'voltageA',columnGroup : 'v',columnName : "A相电压"},
+        {columnProp : 'voltageB',columnGroup : 'v',columnName : "B相电压"},
+        {columnProp : 'voltageC',columnGroup : 'v',columnName : "C相电压"},
+
+        {columnProp : 'activePowerA',columnGroup : 'f',columnName : "A相有功功率"},
+        {columnProp : 'activePowerB',columnGroup : 'f',columnName : "B相有功功率"},
+        {columnProp : 'activePowerC',columnGroup : 'f',columnName : "C相有功功率"},
+        {columnProp : 'totalActivePower',columnGroup : 'f',columnName : "总有功功率"},
+        {columnProp : 'reactivePowerA',columnGroup : 'f',columnName : "A相无功功率"},
+        {columnProp : 'reactivePowerB',columnGroup : 'f',columnName : "B相无功功率"},
+        {columnProp : 'reactivePowerC',columnGroup : 'f',columnName : "C相无功功率"},
+        {columnProp : 'totalReactivePower',columnGroup : 'f',columnName : "总无功功率"},
+        {columnProp : 'powerFactorA',columnGroup : 'f',columnName : "A相功率因数"},
+        {columnProp : 'powerFactorB',columnGroup : 'f',columnName : "B相功率因数"},
+        {columnProp : 'powerFactorC',columnGroup : 'f',columnName : "C相功率因数"},
+        {columnProp : 'totalPowerFactor',columnGroup : 'f',columnName : "总功率因数"},
+
+        {columnProp : 'voltageHarmonicsA',columnGroup : 'h',columnName : "A相电压谐波"},
+        {columnProp : 'voltageHarmonicsB',columnGroup : 'h',columnName : "B相电压谐波"},
+        {columnProp : 'voltageHarmonicsC',columnGroup : 'h',columnName : "C相电压谐波"},
+        {columnProp : 'currentHarmonicsA',columnGroup : 'h',columnName : "A相电流谐波"},
+        {columnProp : 'currentHarmonicsB',columnGroup : 'h',columnName : "B相电流谐波"},
+        {columnProp : 'currentHarmonicsC',columnGroup : 'h',columnName : "C相电流谐波"},
+    ];
     let windowSize = {
         width : document.documentElement.clientWidth,
         height : document.documentElement.clientHeight
@@ -404,6 +838,11 @@
                 searchForm : {},
                 warningPicId : null,
                 warningPicDialogShow : false
+            },
+            historyData : {
+                showColumn : ['t','c','v','f','h'],
+                echartsInstance : null,
+                list : [],
             },
             drawer : false,
             drawerTitle : null,
@@ -644,6 +1083,11 @@
                 handleMethod : "处理方式"
             }]
         },
+        computed : {
+            echartsLegend : function(){
+                this.historyData.showColumn.indexOf("") != -1
+            }
+        },
         methods : {
             changeArea : function(){
                 console.log(1);
@@ -657,7 +1101,105 @@
             formatNodeStr : function(node){
                 console.log(node);
                 return node.data.name;
+            },
+            updateEcharts : function(){
+                if(!this.historyData.echartsInstance){
+                    this.historyData.echartsInstance = echarts.init(document.getElementById('echartsInstance'));
+                }
+                let legendList = [];
+                this.historyData.showColumn.forEach(group=>{
+                    historyDataColumnInfo.forEach(columnInfo=>{
+                        if(group == columnInfo.columnGroup){
+                            legendList.push(columnInfo.columnName);
+                        }
+                    })
+                });
+                let seriesList = [];
+                legendList.forEach(item=>{
+                    let data = [];
+                    for(let i = 1;i <= 31;i++){
+                        let random = Math.random();
+                        if(random > 0.9){
+                            random *= -1;
+                        }
+                        data.push(random * 100);
+                    }
+                    seriesList.push({
+                        name : item,
+                        type : 'line',
+                        data : data
+                    });
+                });
+                let xAxis = [];
+                for(let i = 1;i <= 31;i++){
+                    xAxis.push("2019-11-" + i);
+                }
+                let options = {
+                    title: {
+                        //text: '折线图'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:legendList,
+                        type : 'scroll'
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        /*feature: {
+                            saveAsImage: {}
+                        }*/
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xAxis
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: seriesList
+                };
+                this.historyData.echartsInstance.setOption(options,{
+                    notMerge : true
+                });
             }
+        },
+        watch : {
+            "historyData.list" : function(){
+                this.updateEcharts();
+            },
+            "historyData.showColumn" : function(){
+                this.updateEcharts();
+            },
+            "activeArea" : function(newValue){
+                if(newValue == '3'){
+                    let that = this;
+                    Vue.nextTick(function(){
+                        that.historyData.echartsInstance.resize();
+                    });
+                }
+            }
+        },
+        mounted : function(){
+            let data = [];
+            for(let i = 0;i < 50;i++){
+                let obj = {};
+                historyDataColumnInfo.forEach(item=>{
+                    obj[item.columnProp] = Math.round(Math.random() * 220);
+                });
+                obj['totalPower'] = Math.random() * 1000;
+                obj['order'] = i;
+                obj['time'] = '2019-10-01 10:10:10';
+                data.push(obj);
+            }
+            this.historyData.list = data;
         }
     });
 </script>
