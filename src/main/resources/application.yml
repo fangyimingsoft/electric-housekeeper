@@ -1,28 +1,23 @@
-server:
-  port: 8080
-
-
+#配置当前环境profile
 spring:
+  profiles:
+    active: dev
   jpa:
     hibernate:
       ddl-auto: none
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: true
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ele_housekeeper?serverTimezone=UTC
-    username: root
-    password: fangyiming
-    tomcat:
-      init-s-q-l: select 1 from dual
-
+#####公共配置#####
+server:
+  port: 8081
+#thymeleaf配置
   thymeleaf:
     enabled: true
     suffix: .html
     prefix: classpath:/templates/
     cache: false
 
+#日志配置
 logging:
   level:
     root: INFO

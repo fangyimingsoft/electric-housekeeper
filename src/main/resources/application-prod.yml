@@ -1,0 +1,38 @@
+#数据源配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #url替換{ip}
+    url: jdbc:mysql://127.0.0.1:3306/ele_housekeeper?serverTimezone=UTC
+    #用戶名
+    username: root
+    #密碼
+    password: fangyiming
+
+  #kafka配置
+  kafka:
+    active: true
+    bootstrap-servers: 114.67.237.65:18096
+    admin:
+      fail-fast: true
+    consumer:
+      #消费者ID,用来记录消费者消费消息的偏移量；
+      group-id: fang
+      client-id: electrich-housekeeper
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      max-poll-records: 100
+    producer:
+      retries: 1
+    streams:
+      cache-max-size-buffering: 100MB
+
+logging:
+  level:
+    root: info
+  file:
+    path: file://e:/log/electric-housekeeper
+    name: electric-housekeeper.log
+    max-size: 10MB
+    clean-history-on-start: false

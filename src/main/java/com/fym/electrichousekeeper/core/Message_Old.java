@@ -2,69 +2,49 @@ package com.fym.electrichousekeeper.core;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Message_Old {
-    private String firstFrame;
+    //起始帧
+    private String startFrame;
+    //设备编码
     private String deviceCode;
+    //帧类型
     private String frameType;
-    private String temper_01;
-    private String temper_02;
-    private String temper_03;
-    private String temper_04;
-    private String temper_05;
-    private String temper_06;
-    private String temper_07;
+    //7路温度
+    private List<Double> temperatures;
     //电力系数
-    private String powerFactor;
-    private Double aVoltage;
-    private Double bVoltage;
-    private Double cVoltage;
+    private List<Double> powerFactors;
+
+    private List<Double> voltage;
 
     //电流
-    private Double aCurrent;
-    private Double bCurrent;
-    private Double cCurrent;
+    private List<Double> current;
 
     //有功
-    private Double activePowerA;
-    private Double activePowerB;
-    private Double activePowerC;
-    private Double totalActivePower;
+    private List<Double> activePower;
 
     //无功
-    private Double reactivePowerA;
-    private Double reactivePowerB;
-    private Double reactivePowerC;
-    private Double totalReactivePower;
+    private List<Double> reactivePower;
 
     //视在功率
-    private Double apparentPowerA;
-    private Double apparentPowerB;
-    private Double apparentPowerC;
-    private Double totalApparentPower;
+    private List<Double> apparentPower;
 
     //频率
     private Double frequency;
 
     //电压谐波
-    private Double voltageHarmonicsA;
-    private Double voltageHarmonicsB;
-    private Double voltageHarmonicsC;
+    private List<Double> voltageHarmonics;
 
     //电流谐波
-    private Double currentHarmonicsA;
-    private Double currentHarmonicsB;
-    private Double currentHarmonicsC;
+    private List<Double> currentHarmonics;
 
     //电压畸变率
-    private Double voltageDistortionRateA;
-    private Double voltageDistortionRateB;
-    private Double voltageDistortionRateC;
+    private List<Double> voltageDistortionRate;
 
     //电流畸变率
-    private Double currentDistortionRateA;
-    private Double currentDistortionRateB;
-    private Double currentDistortionRateC;
+    private List<Double> currentDistortionRate;
 
     //吸收有功二次侧
     private Double secondarySideAbsorbActive;
@@ -73,5 +53,26 @@ public class Message_Old {
     //感性无功二次侧
     private Double secondarySideInductiveReactive;
     //容性无功电能二次侧
-    // private Double secondarySide  Reactive;
+    private Double secondarySideCapacitiveReactive;
+
+    //吸收有功二次侧
+    private Double primarySideAbsorbActive;
+    //释放有功二次侧
+    private Double primarySideReleaseActive;
+    //感性无功二次侧
+    private Double primarySideInductiveReactive;
+    //容性无功电能二次侧
+    private Double primarySideCapacitiveReactive;
+
+    //经度
+    private Double longitude;
+
+    //纬度
+    private Double latitude;
+
+    //gps是否有效
+    private boolean gpsEffective;
+
+    //检验位
+    private String checkDigit;
 }

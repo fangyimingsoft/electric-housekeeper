@@ -8,17 +8,21 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
+@Table(name = "sys_dept")
 @Data
-@Table(name = "sys_user")
-public class User {
+public class Dept {
+    @Id
+    @Column
+    private Integer id;
 
     @Column
-    @Id
-    private Long id;
-    @Column(unique = true,nullable = false)
-    private String username;
+    private String name;
 
-    @Column(nullable = false)
-    private String password;
+    @Column
+    private String code;
+
+    @Column
+    private Integer parentId;
 
 }
+
