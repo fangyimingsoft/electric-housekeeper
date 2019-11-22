@@ -114,14 +114,14 @@
                 <div style="overflow: auto;" :style="{height : windowSize.height - 60 + 'px'}">
                         <el-tree
                                 style="background-color: #545c64;color: white;"
-                                :data="equList"
+                                :data="deptList"
                                 show-checkbox
                                 node-key="id"
                                 :hightlight-current="false"
                                 :expand-on-click-node="false">
                               <span class="custom-tree-node" slot-scope="{ node, data }">
                                 <span>{{ formatNodeStr(node) }}</span>
-                                <span>
+                                <span v-if="node.level != 1">
                                   <el-button
                                           type="text"
                                           size="mini">
@@ -163,10 +163,12 @@
                         <!--设备编号	设备名称	设备类型	最后采集时间	负载	变压器容量	状态	报警信息	位置信息-->
                     <div v-show="activeArea == 1" class="datatable-container">
                         <el-table
-                                :data="tableData"
+                                v-loading="deviceListLoading"
+                                element-loading-text="加载中"
+                                :data="deviceList"
                                 border
                                 stripe
-                                :max-height="windowSize.height - 250 + 'px'"
+                                :height="windowSize.height - 250 + 'px'"
                                 style="width: 100%;">
                             <el-table-column type="expand">
                                 <template slot-scope="props">
@@ -189,10 +191,10 @@
                                         <el-table-column prop="powerFactor" label="功率因数">
 
                                         </el-table-column>
-                                        <el-table-column prop="voltageHarmonics" label="电压谐波(V)">
+                                        <el-table-column prop="voltageHarm" label="电压谐波(V)">
 
                                         </el-table-column>
-                                        <el-table-column prop="currentHarmonics" label="电流谐波(A)">
+                                        <el-table-column prop="currentHarm" label="电流谐波(A)">
 
                                         </el-table-column>
                                         <el-table-column prop="temperH" label="温度-H(℃)">
@@ -205,19 +207,19 @@
                                 </template>
                             </el-table-column>
                             <el-table-column
-                                    prop="deviceCode"
+                                    prop="code"
                                     label="设备编号"
                                     align="center"
                                     width="180">
                             </el-table-column>
                             <el-table-column
-                                    prop="deviceName"
+                                    prop="name"
                                     label="设备名称"
                                     align="center"
                                     width="120">
                             </el-table-column>
                             <el-table-column
-                                    prop="deviceType"
+                                    prop="type"
                                     align="center"
                                     label="设备类型">
                             </el-table-column>
@@ -227,9 +229,8 @@
                                     label="最后采集时间">
                                 <template slot-scope="scope">
                                     <i class="el-icon-time"></i>
-                                    <span style="padding-left: 10px;">{{scope.row.lastTime}}</span>
+                                    <span style="padding-left: 10px;">{{scope.row.updateTime}}</span>
                                 </template>
-
                             </el-table-column>
                             <el-table-column
                                     prop="loadRate"
@@ -241,7 +242,7 @@
                                 </template>
                             </el-table-column>
                             <el-table-column
-                                    prop="transformerCapacity"
+                                    prop="capacity"
                                     align="center"
                                     width="120"
                                     label="变压器容量">
@@ -255,7 +256,6 @@
                                 <span v-if="scope.row.status == 1" style="height: 50px;line-height: 30px;">
                                     <i class="el-icon-circle-check" style="font-size: 20px;color: green;"></i>运行中
                                 </span>
-
                                         <span v-if="scope.row.status != 1" style="height: 50px;line-height: 30px;">
                                         <i  class="el-icon-circle-close" style="font-size: 20px;color: red;"></i>停运
                                     </span>
@@ -267,7 +267,7 @@
                                         width="140"
                                         label="报警信息">
                                     <template slot-scope="scope">
-                                        <el-button size="mini" type="danger" @click="alert(scope.row.deviceCode)">报警信息</el-button>
+                                        <el-button size="mini" type="danger" @click="checkWarningInfo(scope.row.code)">报警信息</el-button>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -276,15 +276,17 @@
                                         label="位置信息"
                                         width="100">
                                     <template slot-scope="scope">
-                                        <el-button size="mini" type="success" @click="alert(scope.row.deviceCode)">查看</el-button>
+                                        <el-button size="mini" type="success" @click="checkPositionInfo(scope.row.code)">查看</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
                             <div style="text-align: right;margin-top: 5px;">
                                 <el-pagination
+                                        :page-count="1"
+                                        :page-size="deviceList.length"
                                         background
                                         layout="prev, pager, next,total,jumper"
-                                        :total="1000">
+                                        :total="deviceList.length">
                                 </el-pagination>
                             </div>
                         </div>
@@ -328,7 +330,7 @@
                                     :data="warningList"
                                     border
                                     stripe
-                                    :max-height="windowSize.height - 431 + 'px'"
+                                    :height="windowSize.height - 431 + 'px'"
                                     style="width: 100%;">
                                 <el-table-column
                                         prop="order"
@@ -549,7 +551,7 @@
                                     border
                                     stripe
                                     :height="windowSize.height - 750 + 'px'"
-                                    :max-height="windowSize.height - 750 + 'px'"
+                                    :height="windowSize.height - 750 + 'px'"
                                     style="width: 100%;">
                                 <el-table-column
                                         prop="order"
@@ -927,6 +929,6 @@
         </el-container>
     </el-container>
 </div>
-<script src="/assets/js/index.js"></script>
+<script src="../static/assets/js/index.js"></script>
 </body>
 </html>

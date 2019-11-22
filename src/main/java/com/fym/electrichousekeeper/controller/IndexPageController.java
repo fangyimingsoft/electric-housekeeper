@@ -20,19 +20,11 @@ public class IndexPageController {
 
     @RequestMapping("/index")
     public String index(HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        if(session != null){
-            return "index";
-        }
-        return "login";
+        return "index";
     }
 
     @RequestMapping("management")
     public String management(HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        if(session != null){
-            return "management";
-        }
-        return "login";
+        return "management";
     }
 }

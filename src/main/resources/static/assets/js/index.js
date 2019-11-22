@@ -1,3 +1,4 @@
+let hostPrefix = "http://127.0.0.1:8081/"
 let historyDataColumnInfo = [
     {columnProp : 'temperHA',columnGroup : 't',columnName : 'H-A温度'},
     {columnProp : 'temperHB',columnGroup : 't',columnName : "H-B温度"},
@@ -47,37 +48,6 @@ $(function () {
         windowSize.height = windowHeight;
     });
 });
-let item = {
-    deviceCode: '863920031467884',
-    deviceName: '终端7',
-    deviceType: '柱上变压器 全绝缘变台',
-    lastTime : '2019-06-21 08:31:26',
-    loadRate : 1632.00,
-    transformerCapacity : 315,
-    status : 1,
-    data : [
-        {title : "A相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
-        {title : "B相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
-        {title : "C相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0},
-        {title : "N相",voltage : 0,current : 0,activePower : 0,reactivePower : 0,powerFactor : 0,voltageHarmonics : 0,currentHarmonics : 0,temperH : 0,temperL : 0}
-    ]
-};
-let equList = [
-    {id : 1,name : "南开大学",children : [{id : 11,name : "设备1"}]},
-    {id : 2,name : "上海汽车地毯(铁岭)汽车材料有限公司",children : [{id : 12,name : "设备1"}]},
-    {id : 3,name : "国网辽阳供电公司",children : [{id : 13,name : "设备1"}]},
-    {id : 4,name : "国网辽阳供电公司弓长岭分公司",children : [{id :14,name : "设备1"}]},
-    {id : 5,name : "国网铁岭供电公司",children : [{id : 15,name : "设备1"}]},
-    {id : 6,name : "南开大学",children : [{id : 16,name : "设备1"}]},
-    {id : 7,name : "铁岭市政管修处",children : [{id : 17,name : "设备1"}]},
-    {id : 8,name : "辽宁紫科环保科技有限公司",children : [{id : 18,name : "设备1"}]},
-];
-let list = [];
-for(let i = 0;i < 20;i++){
-    let obj = Object.assign({},item);
-    obj.deviceName += i;
-    list.push(obj);
-}
 let startTime = new Date().getTime();
 let root =
     new Vue({
@@ -85,6 +55,7 @@ let root =
         data : {
             deptList : [],//部门列表
             deviceList : [],//设备列表
+            deviceListLoading : true,
             warningInfo : {//告警信息
                 searchForm : {},
                 warningPicId : null,
@@ -102,240 +73,7 @@ let root =
             drawerTitle : null,
             windowSize : windowSize,
             activeArea : "1",
-            tableData: list,
-            equList : equList,
-            warningList : [{
-                order : 1,
-                id : 1,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 2,
-                alarmPosition : "报警位置",
-                alarmValue : 19,
-                alarmTime : "2018-10-11 12:31",
-                status : 0,
-                handleMethod : "处理方式"
-            },{
-                order : 2,
-                id : 2,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 1,
-                alarmPosition : "报警位置",
-                alarmValue : 11,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 3,
-                id : 3,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 3,
-                alarmPosition : "报警位置",
-                alarmValue : 20,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 4,
-                id : 4,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 2,
-                alarmPosition : "报警位置",
-                alarmValue : 18.1,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 5,
-                id : 5,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 4,
-                alarmPosition : "报警位置",
-                alarmValue : 10,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            },{
-                order : 6,
-                id : 6,
-                companyName : "公司名称",
-                deviceName : "设备名称",
-                alarmType : 5,
-                alarmPosition : "报警位置",
-                alarmValue : 12.0,
-                alarmTime : "2018-10-11 12:31",
-                status : 1,
-                handleMethod : "处理方式"
-            }]
+            warningList : []
         },
         computed : {
             echartsLegend : function(){
@@ -343,6 +81,51 @@ let root =
             }
         },
         methods : {
+            initDeptData : function(){
+                let that = this;
+                axios.get(hostPrefix + "api/dept/list").then(function(config){
+                    config.data.rows.forEach(item=>{
+                        item.children = [];
+                    });
+                    that.deptList = config.data.rows;
+                    that.initDeviceList();
+                }).catch(handleError);
+            },
+            initDeviceList : function(){
+                let that = this;
+                axios.get(hostPrefix + "api/device/list",{params : {currentPage : 1,pageSize : 19950405}}).then(function(config){
+                    config.data.rows.forEach(item=>{
+                        item.data = [
+                            {title : "A相",voltage : item.voltageA,current : item.currentA,activePower : item.activePowerA,reactivePower : item.reactivePowerA,powerFactor : item.powerFactorA,voltageHarm : item.voltageHarmA,currentHarm : item.currentHarmA,temperH : item.temperHA,temperL : item.temperHA},
+                            {title : "B相",voltage : item.voltageB,current : item.currentB,activePower : item.activePowerB,reactivePower : item.reactivePowerB,powerFactor : item.powerFactorB,voltageHarm : item.voltageHarmB,currentHarm : item.currentHarmB,temperH : item.temperHB,temperL : item.temperHB},
+                            {title : "C相",voltage : item.voltageC,current : item.currentC,activePower : item.activePowerC,reactivePower : item.reactivePowerC,powerFactor : item.powerFactorC,voltageHarm : item.voltageHarmC,currentHarm : item.currentHarmC,temperH : item.temperHA,temperL : item.temperHC},
+                            {title : "N相",voltage : item.voltageN,current : item.currentN,activePower : item.activePowerN,reactivePower : item.reactivePowerN,powerFactor : item.powerFactorN,voltageHarm : item.voltageHarmN,currentHarm : item.currentHarmN,temperH : item.temperHN,temperL : item.temperHN}
+                        ];
+                        that.deptList.forEach(dept=>{
+                            if(item.deptId == dept.id){
+                                dept.children.push({
+                                    id : item.code,
+                                    name : item.name
+                                });
+                            }
+                        });
+                    });
+                    that.deviceList = config.data.rows;
+                    Vue.nextTick(function(){that.deviceListLoading = false;});
+                }).catch(handleError);
+            },
+            checkWarningInfo : function(deviceId){
+                this.$message({
+                    message: deviceId,
+                    type : 'success'
+                });
+            },
+            checkPositionInfo : function(deviceId){
+                this.$message({
+                    message: deviceId,
+                    type : 'success'
+                });
+            },
             linkToManagement : function(){
                 let a = document.createElement("a");
                 a.href="management";
@@ -484,6 +267,7 @@ let root =
             }
         },
         mounted : function(){
+            let that = this;
             let data = [];
             for(let i = 0;i < 10;i++){
                 let obj = {};
@@ -499,6 +283,11 @@ let root =
             Vue.nextTick(function(){
                 let endTime = new Date().getTime();
                 console.log("主页Vue加载时间：" + (endTime - startTime));
+                that.initDeptData();
             });
         }
     });
+
+function handleError(){
+    alert("无法连接到服务器")
+}

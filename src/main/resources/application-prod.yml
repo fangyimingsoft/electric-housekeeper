@@ -36,3 +36,7 @@ logging:
     name: electric-housekeeper.log
     max-size: 10MB
     clean-history-on-start: false
+
+config:
+  login:
+    require: true

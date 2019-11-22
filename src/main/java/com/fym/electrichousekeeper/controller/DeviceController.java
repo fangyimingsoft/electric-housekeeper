@@ -22,9 +22,10 @@ public class DeviceController {
     @GetMapping("/list")
     public ApiResponse list(@RequestParam(value = "currentPage",required = false,defaultValue = "1")Integer currentPage,
                             @RequestParam(value = "pageSize",required = false,defaultValue = "10")Integer pageSize){
-        Pageable pageInfo = PageRequest.of(currentPage,pageSize);
+        Pageable pageInfo = PageRequest.of(currentPage - 1,pageSize);
         Page<Device> all = deviceRepository.findAll(pageInfo);
         PageableResponse response = PageableResponse.OK(all.getTotalElements(), all.getTotalPages());
+        System.out.println(all.get().count());
         response.setRows(all.getContent());
         return response;
     }
