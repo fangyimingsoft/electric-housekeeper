@@ -38,4 +38,4 @@ logging:
 
 config:
   login:
-    required: false
+    required: true

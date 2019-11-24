@@ -18,6 +18,11 @@ public class IndexPageController {
         return "login";
     }
 
+    @GetMapping("/login")
+    public String login2(){
+        return "login";
+    }
+
     @RequestMapping("/index")
     public String index(HttpServletRequest request){
         return "index";

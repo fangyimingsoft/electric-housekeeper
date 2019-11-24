@@ -4,7 +4,7 @@ html,body{
 }
 
 .datatable-container{
-    padding-top: 30px;
+    padding-top: 0px;
     /*overflow: auto;*/
 }
 
@@ -21,4 +21,109 @@ html,body{
 
 .his-echarts-area{
     height: 400px;
+}
+
+.device-list{
+    overflow: auto;
+}
+
+.device-item{
+    display: inline-block;
+    width: 330px;
+    height: 155px;
+    margin-bottom: 30px;
+    margin-right: 25px;
+}
+
+
+.device-monitor{
+    height: 90px;
+    position: relative;
+}
+
+.device-monitor-load{
+    display: inline-block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 90px;
+    height: 90px;
+    padding-top: 5px;
+    padding-bottom: 15px;
+    box-sizing: border-box;
+}
+
+.device-info-name{
+    display: inline-block;
+    position: absolute;
+    width: 190px;
+    left: 90px;
+    top : 0px;
+    padding-left: 10px;
+    text-align: left;
+    height: 25px;
+    line-height: 25px;
+}
+
+.device-info-status{
+    display: inline-block;
+    position: absolute;
+    width: 190px;
+    left: 90px;
+    top : 25px;
+    padding-left: 10px;
+    height: 25px;
+}
+
+.device-info-content{
+    text-align: center;
+    display: inline-block;
+    position: absolute;
+    width: 200px;
+    height: 40px;
+    top: 50px;
+    left : 90px;
+    line-height: 38px;
+}
+
+
+.device-monitor-log{
+    position: fixed;
+    left: 0px;
+    top: 60px;
+    width: 400px;
+    z-index: 10;
+    box-sizing: border-box;
+    background-color: #eee;
+    /*background-image: url("../images/DAimG_2018070189690132XK8R_08.jpg");*/
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.tip{
+    width: 0px;
+    display: inline-block;
+    height: 20px;
+    border-top: 3px solid #0000ff00;
+    border-right: 3px solid #0000ff00;
+    border-bottom: 3px solid #0000ff00;
+    border-left: 7px solid;
+}
+
+.a{
+    border: 1px rgba(100, 149, 237, 0.49) solid;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding:0 5px;
+}
+
+::-webkit-scrollbar{
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: rgba(30, 144, 255, 0.7);
+    border-radius: 5px;
 }

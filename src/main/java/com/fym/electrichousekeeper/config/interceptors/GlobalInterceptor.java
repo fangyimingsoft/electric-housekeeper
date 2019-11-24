@@ -1,9 +1,12 @@
 package com.fym.electrichousekeeper.config.interceptors;
 
 import lombok.Setter;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,25 +19,28 @@ public class GlobalInterceptor implements HandlerInterceptor {
 
     private List<Integer> noAuthStatus = Arrays.asList(401,404,405);
 
+    private List<String> authUri = Arrays.asList("/index","/management","/api/");
+
     private Boolean requireLogin = true;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if(!requireLogin){
-            return true;
+        String uri = request.getRequestURI();
+        long count = authUri.stream().filter(item -> uri.startsWith(item)).count();
+        if(count > 0){
+            HttpSession session = request.getSession(false);
+            if(session == null){
+                response.sendRedirect("/login");
+                return false;
+            }else{
+                return true;
+            }
+        }else{
+            if(noAuthStatus.contains(response.getStatus())){
+                response.sendRedirect("/");
+                return false;
+            }
+            return  true;
         }
-        String requestURI = request.getRequestURI();
-        if(requestURI.startsWith("/assets") || requestURI.equals("/") || requestURI.startsWith("/login")){
-            return true;
-        }
-        HttpSession session = request.getSession(false);
-        int status = response.getStatus();
-        if(session != null){
-            return true;
-        }else if(noAuthStatus.contains(status)){
-            response.sendRedirect("/login");
-            return false;
-        }
-        return true;
     }
 }
