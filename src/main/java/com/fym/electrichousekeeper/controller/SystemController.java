@@ -2,7 +2,7 @@ package com.fym.electrichousekeeper.controller;
 
 import com.fym.electrichousekeeper.common.ApiResponse;
 import com.fym.electrichousekeeper.dao.UserRepository;
-import com.fym.electrichousekeeper.entiry.User;
+import com.fym.electrichousekeeper.entiry.po.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 

@@ -1,9 +1,11 @@
 package com.fym.electrichousekeeper.core;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
+@ToString
 @Data
 public class Message_Old {
     //起始帧

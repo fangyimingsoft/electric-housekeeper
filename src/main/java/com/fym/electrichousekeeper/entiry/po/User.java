@@ -1,4 +1,4 @@
-package com.fym.electrichousekeeper.entiry;
+package com.fym.electrichousekeeper.entiry.po;
 
 import lombok.Data;
 

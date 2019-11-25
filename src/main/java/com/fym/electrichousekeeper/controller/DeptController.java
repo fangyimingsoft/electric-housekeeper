@@ -2,7 +2,7 @@ package com.fym.electrichousekeeper.controller;
 
 import com.fym.electrichousekeeper.common.ApiResponse;
 import com.fym.electrichousekeeper.dao.DeptRepository;
-import com.fym.electrichousekeeper.entiry.Dept;
+import com.fym.electrichousekeeper.entiry.po.Dept;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
