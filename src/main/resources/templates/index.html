@@ -144,21 +144,22 @@
             <el-button size="mini">退出登录</el-button>-->
         </el-header>
         <el-container>
-            <el-aside width="400px" style="overflow: auto;background-color: white;">
-                <div style="overflow: auto;" :style="{height : windowSize.height - 60 + 'px'}">
+            <el-aside width="400px" style="overflow: auto;background-color: #EEE;">
+                <div :style="{height : windowSize.height - 80 + 'px'}" style="margin: 10px;background-color: #fff;overflow: auto;border-radius: 3px;">
                     <el-input placeholder="输入关键字过滤"
-                              v-model="filterText" style="margin: 10px 20px 0px 20px;width: 360px;"
+                              v-model="filterText" style="margin: 10px 20px 0px 20px;width: 340px;"
                                suffix-icon="el-icon-search">
                     </el-input>
-                    <el-tree
-                            :filter-node-method="deviceTreeFilter"
-                            ref="tree"
-                            node-key="id"
-                            style="background-color: white;color: black;"
-                            :data="deptList"
-                            show-checkbox
-                            :hightlight-current="false"
-                            :expand-on-click-node="false">
+                    <div>
+                        <el-tree
+                                :filter-node-method="deviceTreeFilter"
+                                ref="tree"
+                                node-key="id"
+                                style="background-color: white;color: black;"
+                                :data="deptList"
+                                show-checkbox
+                                :hightlight-current="false"
+                                :expand-on-click-node="false">
                           <span class="custom-tree-node" slot-scope="{ node, data }">
                             <span>{{ formatNodeStr(node) }}</span>
                             <span v-if="node.level != 1">
@@ -174,13 +175,14 @@
                               </el-button>
                             </span>
                           </span>
-                    </el-tree>
+                        </el-tree>
+                    </div>
                 </div>
             </el-aside>
             <el-container>
-                <el-main :style="{height : windowSize.height - 60 + 'px'}">
+                <el-main :style="{height : windowSize.height - 60 + 'px'}" style="padding: 0px;">
                         <!--设备编号	设备名称	设备类型	最后采集时间	负载	变压器容量	状态	报警信息	位置信息-->
-                    <div v-show="activeArea == 1" class="datatable-container">
+                    <!--<div :v-show="false" class="datatable-container">
                         <el-table
                                 v-loading="deviceListLoading"
                                 element-loading-text="加载中"
@@ -308,7 +310,7 @@
                                         :total="deviceList.length">
                                 </el-pagination>
                             </div>
-                        </div>
+                        </div>-->
                     <div v-show="activeArea == 2" class="datatable-container">
                             <div class="search-area">
                                 <el-form :inline="true" :model="warningInfo.searchForm">
@@ -345,88 +347,90 @@
                                     </div>
                                 </el-form>
                             </div>
-                            <el-table
-                                    :data="warningList"
-                                    border
-                                    stripe
-                                    :height="windowSize.height - 431 + 'px'"
-                                    style="width: 100%;">
-                                <el-table-column
-                                        prop="order"
-                                        label="序号"
-                                        align="center"
-                                        width="120">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="id"
-                                        label="ID"
-                                        align="center"
-                                        width="180">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="companyName"
-                                        align="center"
-                                        label="公司名称">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="deviceName"
-                                        align="center"
-                                        width="230"
-                                        label="设备名称">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="alarmType"
-                                        align="center"
-                                        width="130"
-                                        label="报警类型">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="alarmPosition"
-                                        align="center"
-                                        width="130"
-                                        label="报警位置">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="alarmValue"
-                                        align="center"
-                                        label="报警值"
-                                        width="120">
-                                    <template slot-scope="scope">
-                                        <el-button v-if="scope.row.alarmType == 2" size="mini" type="warning" @click="warningInfo.warningPicDialogShow = true;warningInfo.warningPicId = scope.row.id">查看</el-button>
-                                        <span v-else>{{scope.row.alarmValue}}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column
-                                        prop="alarmTime"
-                                        align="center"
-                                        width="200"
-                                        label="报警时间">
-                                </el-table-column>
-                                <el-table-column
-                                        prop="status"
-                                        align="center"
-                                        label="当前状态"
-                                        width="110">
-                                    <template slot-scope="scope">
-                                        <el-button :icon="scope.row.status == 0 ? 'el-icon-remove-outline' : 'el-icon-circle-check'" :type="scope.row.status == 0 ? 'warning' : 'success'" size="mini">{{scope.row.status == 0 ? '待处理' : '已处理'}}</el-button>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column
-                                        prop="handleMethod"
-                                        align="center"
-                                        label="处理方式"
-                                        width="100">
-                                    <template slot-scope="scope">
-                                        <el-button type="success" size="mini" @click="drawer = true;drawerTitle = scope.row.deviceName">查看</el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                            <div style="text-align: right;margin-top: 5px;">
-                                <el-pagination
-                                        background
-                                        layout="prev, pager, next,total,jumper"
-                                        :total="1000">
-                                </el-pagination>
+                            <div class="device-list" :style="{height : windowSize.height - 268 + 'px'}">
+                                <el-table
+                                        :data="warningList"
+                                        border
+                                        stripe
+                                        height="90%"
+                                        style="width: 100%;">
+                                    <el-table-column
+                                            prop="order"
+                                            label="序号"
+                                            align="center"
+                                            width="120">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="id"
+                                            label="ID"
+                                            align="center"
+                                            width="180">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="companyName"
+                                            align="center"
+                                            label="公司名称">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="deviceName"
+                                            align="center"
+                                            width="230"
+                                            label="设备名称">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="alarmType"
+                                            align="center"
+                                            width="130"
+                                            label="报警类型">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="alarmPosition"
+                                            align="center"
+                                            width="130"
+                                            label="报警位置">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="alarmValue"
+                                            align="center"
+                                            label="报警值"
+                                            width="120">
+                                        <template slot-scope="scope">
+                                            <el-button v-if="scope.row.alarmType == 2" size="mini" type="warning" @click="warningInfo.warningPicDialogShow = true;warningInfo.warningPicId = scope.row.id">查看</el-button>
+                                            <span v-else>{{scope.row.alarmValue}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="alarmTime"
+                                            align="center"
+                                            width="200"
+                                            label="报警时间">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="status"
+                                            align="center"
+                                            label="当前状态"
+                                            width="110">
+                                        <template slot-scope="scope">
+                                            <el-button :icon="scope.row.status == 0 ? 'el-icon-remove-outline' : 'el-icon-circle-check'" :type="scope.row.status == 0 ? 'warning' : 'success'" size="mini">{{scope.row.status == 0 ? '待处理' : '已处理'}}</el-button>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="handleMethod"
+                                            align="center"
+                                            label="处理方式"
+                                            width="100">
+                                        <template slot-scope="scope">
+                                            <el-button type="success" size="mini" @click="drawer = true;drawerTitle = scope.row.deviceName">查看</el-button>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <div style="text-align: right;margin-top: 5px;">
+                                    <el-pagination
+                                            background
+                                            layout="prev, pager, next,total,jumper"
+                                            :total="1000">
+                                    </el-pagination>
+                                </div>
                             </div>
                             <el-drawer
                                     :visible.sync="drawer"
@@ -537,7 +541,7 @@
                         </el-dialog>
                     </div>
                     <div v-show="activeArea == 3" class="datatable-container">
-                            <div class="search-area">
+                        <div class="search-area">
                                 <el-form :inline="true" :model="warningInfo.searchForm">
                                     <el-form-item label="范围查询">
                                         <el-date-picker
@@ -564,6 +568,7 @@
                                     </div>
                                 </el-form>
                             </div>
+                        <div class="device-list" :style="{height : windowSize.height - 268 + 'px'}">
                             <el-table
                                     size="small"
                                     :data="historyData.list"
@@ -814,6 +819,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                     <div v-show="activeArea && activeArea.startsWith('7')" class="datatable-container">
                         <div class="search-area">
                             <el-form :inline="true" :model="warningInfo.searchForm">
@@ -942,7 +948,6 @@
                         <div id="monthReportCharts" style="height: 295px;">
                         </div>
                     </div>
-
                     <div v-show="activeArea == 8" class="datatable-container">
                         <div class="search-area">
                             <el-form :inline="true" :model="deviceMonitor.form" label-width="80px">
@@ -984,7 +989,7 @@
                                 </div>
                             </el-form>
                         </div>
-                        <div class="device-list" :style="{height : windowSize.height - 350 + 'px'}">
+                        <div class="device-list" :style="{height : windowSize.height - 250 + 'px'}">
                             <div class="device-item" v-for="device in monitorDeviceList">
                                 <el-card shadow="hover" :style="{height : '100%',borderColor : '#cbdbff'}">
                                     <div slot="header" :style="{padding : '10px 20px',backgroundColor : device.status == 0 ? 'gray' : (device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green'))}">
@@ -1089,9 +1094,9 @@
                             </el-table>
                         </el-drawer>
                     </div>
-                    <div class="device-monitor-log" v-show="activeArea == 8" style="padding: 5px 0px 5px 10px;" :style="{height : windowSize.height - 60 + 'px'}">
-                        <div class="a">
-                            <div style="height: 26px;line-height: 26px;font-weight: bold;margin: 10px 0;">
+                    <div class="sidebar" v-show="activeArea == 8" :style="{height : windowSize.height - 60 + 'px'}">
+                        <div class="device-monitor-item">
+                            <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
                                 <span style="float: left;">统计信息</span>
                             </div>
@@ -1100,8 +1105,8 @@
                             </div>
                         </div>
 
-                        <div class="a">
-                            <div style="height: 26px;line-height: 26px;font-weight: bold;">
+                        <div class="device-monitor-item">
+                            <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
                                 <span style="float: left;">近期设备报警次数</span>
                             </div>
@@ -1111,12 +1116,12 @@
                             </div>
                         </div>
 
-                        <div class="a">
-                            <div style="height: 26px;line-height: 26px;font-weight: bold;margin: 10px 0;">
+                        <div class="device-monitor-item" style="height: 324px;">
+                            <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
                                 <span style="float: left;">报警日志</span>
                             </div>
-                            <div style="height: 400px;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
+                            <div style="height: 250px;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
                                 <ul v-for="i in 100">
                                     {{i}}
                                 </ul>

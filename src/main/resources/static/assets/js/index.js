@@ -1,4 +1,4 @@
-let hostPrefix = "/";
+let hostPrefix = "http://127.0.0.1:8081/";
 let historyDataColumnInfo = [
     {columnProp : 'temperHA',columnGroup : 't',columnName : 'H-A温度'},
     {columnProp : 'temperHB',columnGroup : 't',columnName : "H-B温度"},
@@ -67,7 +67,7 @@ let root =
             },
             filterText : '',
             deptList : [],//部门列表
-            deviceList : [],//设备列表
+            deviceList : [{status : 1,name : 'test'}],//设备列表
             deviceListLoading : true,
             warningInfo : {//告警信息
                 searchForm : {},
@@ -130,14 +130,14 @@ let root =
         },
         methods : {
             getDeptList : function(callback){
-                axios.get(hostPrefix + "api/dept/list",{withCredentials : true}).then(function(config){
+                axios.get(hostPrefix + "api/dept/list",/*{withCredentials : true}*/).then(function(config){
                     if(callback){
                         callback(config.data.rows);
                     }
                 }).catch(handleError);
             },
             getDeviceList : function(callback){
-                axios.get(hostPrefix + "api/device/list",{params : {pageSize : 19950405},withCredentials : true})
+                axios.get(hostPrefix + "api/device/list",{params : {pageSize : 19950405},/*withCredentials : true*/})
                     .then(function(config){
                         if(callback){
                             callback(config.data.rows);
@@ -299,7 +299,7 @@ let root =
                     Vue.nextTick(function(){
                         let instance = echarts.init(document.getElementById('deviceData'));
                         instance.clear();
-                        axios.get(hostPrefix + "api/dept/list",{withCredentials : true}).then(function(config){
+                        axios.get(hostPrefix + "api/dept/list",/*{withCredentials : true}*/).then(function(config){
                             let legendList = [];
                             that.historyData.showColumn.forEach(group=>{
                                 historyDataColumnInfo.forEach(columnInfo=>{
@@ -580,7 +580,8 @@ let root =
         }
     });
 
-function handleError(){
+function handleError(info){
+    console.log(info);
     alert("无法连接到服务器")
 }
 

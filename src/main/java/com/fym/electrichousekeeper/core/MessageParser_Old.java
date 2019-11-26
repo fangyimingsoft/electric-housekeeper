@@ -94,7 +94,7 @@ public class MessageParser_Old {
         //67~78     三相电流
         String currentStr = substrWithLength(message, strPos.get(), 12, posConsumer);
         List<Double> currents = getGroupDoubleValue(currentStr,3,4);
-        data.setCurrentA(currents.get(0) * currentFactor * ct);???
+        data.setCurrentA(currents.get(0) * currentFactor * ct);//????
         data.setCurrentB(currents.get(0) * currentFactor);
         data.setCurrentC(currents.get(0) * currentFactor);
 

@@ -1,6 +1,7 @@
 html,body{
     margin: 0px;
     padding: 0px;
+    background-color: #eee;
 }
 
 .datatable-container{
@@ -12,7 +13,8 @@ html,body{
     padding: 15px;
     border: 1px #ffe2e2 solid;
     border-radius: 5px;
-    margin-bottom: 25px;
+    background-color: #ffffff;
+    margin: 10px;
 }
 
 .form-item-no-margin .el-form-item{
@@ -25,6 +27,9 @@ html,body{
 
 .device-list{
     overflow: auto;
+    background-color: #ffffff;
+    margin : 10px;
+    padding: 10px;
 }
 
 .device-item{
@@ -87,7 +92,7 @@ html,body{
 }
 
 
-.device-monitor-log{
+.sidebar{
     position: fixed;
     left: 0px;
     top: 60px;
@@ -95,9 +100,6 @@ html,body{
     z-index: 10;
     box-sizing: border-box;
     background-color: #eee;
-    /*background-image: url("../images/DAimG_2018070189690132XK8R_08.jpg");*/
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 .tip{
@@ -110,20 +112,28 @@ html,body{
     border-left: 7px solid;
 }
 
-.a{
-    border: 1px rgba(100, 149, 237, 0.49) solid;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    padding:0 5px;
+.device-monitor-item{
+    height: 300px;
+    margin: 10px;
+    padding: 5px;
+    background-color: #fff;
+    box-shadow: #00000008 0px 0px 3px 3px;
+    border-radius: 3px;
+    overflow: hidden;
 }
-
+.device-monitor-title{
+    height: 26px;
+    line-height: 26px;
+    font-weight: bold;
+    margin: 10px 0;
+    border-bottom: 1px #eee solid;
+}
 ::-webkit-scrollbar{
     width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-thumb{
-    background-color: rgba(30, 144, 255, 0.7);
+    background-color: #5aee00;
     border-radius: 5px;
 }

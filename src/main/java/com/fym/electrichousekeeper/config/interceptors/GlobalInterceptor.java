@@ -1,13 +1,8 @@
 package com.fym.electrichousekeeper.config.interceptors;
 
 import lombok.Setter;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -25,6 +20,9 @@ public class GlobalInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if(!requireLogin){
+            return  true;
+        }
         String uri = request.getRequestURI();
         long count = authUri.stream().filter(item -> uri.startsWith(item)).count();
         if(count > 0){
