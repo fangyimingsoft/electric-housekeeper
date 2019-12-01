@@ -55,7 +55,8 @@ let root =
         data : {
             deviceDataDrawer : {
                 show : false,
-                device : {}
+                device : {},
+                showColumn : ['c']
             },
             deviceMonitor : {
                 form : {
@@ -85,7 +86,7 @@ let root =
             drawer : false,
             drawerTitle : null,
             windowSize : windowSize,
-            activeArea : "1",
+            activeArea : "8",
             warningList : []
         },
         computed : {
@@ -99,9 +100,6 @@ let root =
                 let deptId = that.deviceMonitor.form.deptId;
                 let deviceType = that.deviceMonitor.form.deviceType;
                 let filterDevice = deviceList.filter(device=>{
-                    if(device.status == 0){
-                        return false;
-                    }
                     if(deviceName && device.name.indexOf(deviceName) == -1){
                         return false;
                     }
@@ -223,6 +221,72 @@ let root =
                 console.log(node);
                 return node.data.name;
             },
+            updateDeviceDataCharts : function(){
+                let ins = echarts.init(document.getElementById('deviceData'));
+                let legendList = [];
+                this.deviceDataDrawer.showColumn.forEach(group=>{
+                    historyDataColumnInfo.forEach(columnInfo=>{
+                        if(group == columnInfo.columnGroup){
+                            legendList.push(columnInfo.columnName);
+                        }
+                    })
+                });
+                let seriesList = [];
+                legendList.forEach(item=>{
+                    let data = [];
+                    for(let i = 1;i <= 31;i++){
+                        let random = Math.random();
+                        if(random > 0.9){
+                            random *= -1;
+                        }
+                        data.push(random * 100);
+                    }
+                    seriesList.push({
+                        name : item,
+                        type : 'line',
+                        data : data
+                    });
+                });
+                let xAxis = [];
+                for(let i = 1;i <= 60;i++){
+                    xAxis.push("00:" + (i < 10 ? "0" : "") + i);
+                }
+                let options = {
+                    title: {
+                        //text: '折线图'
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:legendList,
+                        type : 'scroll'
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    toolbox: {
+                        /*feature: {
+                            saveAsImage: {}
+                        }*/
+                    },
+                    xAxis: {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xAxis
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: seriesList
+                };
+                ins.setOption(options,{
+                    notMerge : true
+                });
+            },
             updateEcharts : function(){
                 if(!this.historyData.echartsInstance){
                     this.historyData.echartsInstance = echarts.init(document.getElementById('echartsInstance'));
@@ -300,67 +364,7 @@ let root =
                         let instance = echarts.init(document.getElementById('deviceData'));
                         instance.clear();
                         axios.get(hostPrefix + "api/dept/list",/*{withCredentials : true}*/).then(function(config){
-                            let legendList = [];
-                            that.historyData.showColumn.forEach(group=>{
-                                historyDataColumnInfo.forEach(columnInfo=>{
-                                    if(group == columnInfo.columnGroup){
-                                        legendList.push(columnInfo.columnName);
-                                    }
-                                })
-                            });
-                            let seriesList = [];
-                            legendList.forEach(item=>{
-                                let data = [];
-                                for(let i = 1;i <= 31;i++){
-                                    let random = Math.random();
-                                    if(random > 0.9){
-                                        random *= -1;
-                                    }
-                                    data.push(random * 100);
-                                }
-                                seriesList.push({
-                                    name : item,
-                                    type : 'line',
-                                    data : data
-                                });
-                            });
-                            let xAxis = [];
-                            for(let i = 1;i <= 31;i++){
-                                xAxis.push("2019-11-" + i);
-                            }
-                            let options = {
-                                title: {
-                                    //text: that.deviceDataDrawer.device.name + '实时数据'
-                                },
-                                tooltip: {
-                                    trigger: 'axis'
-                                },
-                                legend: {
-                                    data:legendList,
-                                    type : 'scroll'
-                                },
-                                grid: {
-                                    left: '3%',
-                                    right: '4%',
-                                    bottom: '3%',
-                                    containLabel: true
-                                },
-                                toolbox: {
-                                    /*feature: {
-                                        saveAsImage: {}
-                                    }*/
-                                },
-                                xAxis: {
-                                    type: 'category',
-                                    boundaryGap: false,
-                                    data: xAxis
-                                },
-                                yAxis: {
-                                    type: 'value'
-                                },
-                                series: seriesList
-                            };
-                            instance.setOption(options);
+                            that.updateDeviceDataCharts();
                         }).catch(handleError);
                     });
                 }
@@ -373,6 +377,9 @@ let root =
             },
             "historyData.showColumn" : function(){
                 this.updateEcharts();
+            },
+            "deviceDataDrawer.showColumn" : function(){
+                this.updateDeviceDataCharts();
             },
             "activeArea" : function(newValue){
                 switch (newValue) {
@@ -417,143 +424,7 @@ let root =
                         });
                     }break;
                     case '8':{
-                        Vue.nextTick(function(){
-                            let ins2= echarts.init(document.getElementById('monitorStatistic'));
-                            let options = {
-                                title : {
-                                    text: "设备运行状态",
-                                    x : 'center'
-                                },
-                                tooltip : {
-                                    trigger : 'item',
-                                    formatter : "{a} <br/> {b}:{c} ({d}%)"
-                                },
-                                legend:{
-                                    orient : 'vertical',
-                                    left : 310,
-                                    top : 80,
-                                    data : ['异常','正常','正在运行','停运'],
-                                },
-                                series : [
-                                    {
-                                        name : '设备数量',
-                                        type : 'pie',
-                                        selectMode : 'single',
-                                        radius : [0,'30%'],
-                                        label : {
-                                            normal : {position : 'inner'}
-                                        },
-                                        labelLine : {
-                                            normal : {show : false}
-                                        },
-                                        data : [{ value : 344,name : '运行中'},{ value : 100,name : '停运'}]
-                                    },
-                                    {
-                                        name : '设备数量',
-                                        type : 'pie',
-                                        radius : ['40%','55%'],
-                                        label : {
-                                            normal : {
-                                                formatter: 'sdf',
-                                                backgroundColor : '#eee',
-                                                borderWidth : 1,
-                                                borderRadius : 4,
-                                                rich : {
-                                                    a : {
-                                                        color : '#999',
-                                                        lineHeight : 22,
-                                                        align : 'center',
-                                                    },
-                                                    hr : {
-                                                        borderColor : '#aaa',
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        data : [
-                                            {value : 200 ,name : '正常'},
-                                            {value : 144 ,name : '异常'},
-                                            {value : 100 ,name : '停运'},
-
-                                        ]
-                                    }
-                                ]
-                            };
-                            ins2.setOption(options);
-
-
-
-
-
-
-                            ins2 = echarts.init(document.getElementById("monitorWarningStatistic"));
-                            ins2.setOption({
-                                    tooltip : {
-                                        trigger: 'axis',
-                                        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                                            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                                        }
-                                    },
-                                title : {
-                                    text : "近期设备报警次数排行",
-                                    x : 'center',
-                                    top : '15px',
-                                    textStyle : {
-                                        fontWeight : 'normal',
-                                        color : '#ff1200',
-                                        fontSize : 16
-                                    }
-                                },
-                                    /*legend: {
-                                        //data: ['报警次数', '报警类型']
-                                    },*/
-                                    grid: {
-                                        left: '3%',
-                                        right: '4%',
-                                        bottom: '3%',
-                                        containLabel: true
-                                    },
-                                    xAxis:  {
-                                        type: 'value'
-                                    },
-                                    yAxis: {
-                                        type: 'category',
-                                        data: ['龙南线七里分47#2','玉深泵占','紫莎坨线#44变压器','南外线11#变压器','设备6']
-                                    },
-                                    series: [
-                                        {
-                                            name: '报警类型',
-                                            type: 'bar',
-                                            stack: '总量',
-                                            label: {
-                                                normal: {
-                                                    show: true,
-                                                    position: 'insideRight'
-                                                }
-                                            },
-                                            data: [3, 2, 5, 9, 10],
-                                            barWidth : '10px',
-                                            itemStyle : {color : '#ffe011'}
-
-                                        },
-                                        {
-                                            name: '报警次数',
-                                            type: 'bar',
-                                            stack: '总量',
-                                            label: {
-                                                normal: {
-                                                    show: true,
-                                                    position: 'insideRight'
-                                                }
-                                            },
-                                            data: [5, 11, 15, 13, 20],
-                                            barWidth : '10px',
-                                            itemStyle : {color: '#ff0504'}
-                                        }
-                                    ]
-                                }
-                            );
-                        });
+;
                     }break;
                 }
             }
@@ -577,6 +448,143 @@ let root =
                 console.log("主页Vue加载时间：" + (endTime - startTime));
                 that.initPage();
             });
+            Vue.nextTick(function(){
+                let ins2= echarts.init(document.getElementById('monitorStatistic'));
+                let options = {
+                    title : {
+                        text: "设备运行状态",
+                        x : 'center'
+                    },
+                    tooltip : {
+                        trigger : 'item',
+                        formatter : "{a} <br/> {b}:{c} ({d}%)"
+                    },
+                    legend:{
+                        orient : 'vertical',
+                        left : 310,
+                        top : 80,
+                        data : ['异常','正常','正在运行','停运'],
+                    },
+                    series : [
+                        {
+                            name : '设备数量',
+                            type : 'pie',
+                            selectMode : 'single',
+                            radius : [0,'30%'],
+                            label : {
+                                normal : {position : 'inner'}
+                            },
+                            labelLine : {
+                                normal : {show : false}
+                            },
+                            data : [{ value : 344,name : '运行中'},{ value : 100,name : '停运'}]
+                        },
+                        {
+                            name : '设备数量',
+                            type : 'pie',
+                            radius : ['40%','55%'],
+                            label : {
+                                normal : {
+                                    formatter: 'sdf',
+                                    backgroundColor : '#eee',
+                                    borderWidth : 1,
+                                    borderRadius : 4,
+                                    rich : {
+                                        a : {
+                                            color : '#999',
+                                            lineHeight : 22,
+                                            align : 'center',
+                                        },
+                                        hr : {
+                                            borderColor : '#aaa',
+                                        }
+                                    }
+                                }
+                            },
+                            data : [
+                                {value : 200 ,name : '正常'},
+                                {value : 144 ,name : '异常'},
+                                {value : 100 ,name : '停运'},
+
+                            ]
+                        }
+                    ]
+                };
+                ins2.setOption(options);
+
+
+
+
+
+
+                ins2 = echarts.init(document.getElementById("monitorWarningStatistic"));
+                ins2.setOption({
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        title : {
+                            text : "今日设备报警次数排行",
+                            x : 'center',
+                            top : '15px',
+                            textStyle : {
+                                fontWeight : 'normal',
+                                color : '#ff1200',
+                                fontSize : 16
+                            }
+                        },
+                        /*legend: {
+                            //data: ['报警次数', '报警类型']
+                        },*/
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis:  {
+                            type: 'value'
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: ['龙南线七里分47#2','玉深泵占','紫莎坨线#44变压器','南外线11#变压器','设备6']
+                        },
+                        series: [
+                            {
+                                name: '报警类型',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'insideRight'
+                                    }
+                                },
+                                data: [3, 2, 5, 9, 10],
+                                barWidth : '10px',
+                                itemStyle : {color : '#ffe011'}
+
+                            },
+                            {
+                                name: '报警次数',
+                                type: 'bar',
+                                stack: '总量',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'insideRight'
+                                    }
+                                },
+                                data: [5, 11, 15, 13, 20],
+                                barWidth : '10px',
+                                itemStyle : {color: '#ff0504'}
+                            }
+                        ]
+                    }
+                );
+            })
         }
     });
 

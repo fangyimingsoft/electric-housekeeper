@@ -1,16 +1,14 @@
 package com.fym.electrichousekeeper;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fym.electrichousekeeper.core.MessageParser_Old;
-import com.fym.electrichousekeeper.core.Message_Old;
 import com.fym.electrichousekeeper.entiry.po.Data;
-import com.rabbitmq.tools.json.JSONUtil;
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.apache.tomcat.util.buf.HexUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import sun.rmi.runtime.Log;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,9 +26,11 @@ public class MessageParserTest {
                 String message = matcher.group(1);
                 String data = null;
                 try {
-                    JSONObject jsonObject = new JSONObject(message);
-                    JSONObject eventPayLoad = (JSONObject)jsonObject.get("eventPayload");
-                    data = eventPayLoad.get("rawdata").toString();
+                    JSONObject parse = (JSONObject)JSONObject.parse(message);
+                    Long timestamp = parse.getLong("timestamp");
+                    System.out.println(timestamp.getClass());
+                    JSONObject eventPayload = (JSONObject)parse.get("eventPayload");
+                    data = eventPayload.getString("rawdata");
                     if(data.length() != 574){
                         System.err.println("报文长度有误");
                         return;
@@ -41,8 +41,7 @@ public class MessageParserTest {
                         str.append(toAsciiChar(bit));
                     }
                     MessageParser_Old messageParser_old = new MessageParser_Old();
-                    Data parse = messageParser_old.parse(str.toString());
-                    System.out.println(parse);
+
                 } catch (Exception e) {
 
                 }
@@ -70,5 +69,10 @@ public class MessageParserTest {
         byte aByte = bytes[0];
         int number = aByte > 0 ? aByte : (127 + 129 - Math.abs(aByte));
         return (char) number;
+    }
+
+    @Test
+    public void test12(){
+        System.out.println((int)'1');
     }
 }

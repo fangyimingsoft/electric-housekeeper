@@ -8,7 +8,7 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" href="../static/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/common.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
@@ -1043,10 +1043,10 @@
                                 :visible.sync="deviceDataDrawer.show"
                                 direction="ltr">
                             <el-divider content-position="center">图表数据</el-divider>
-                            <el-form :inline="true" :model="warningInfo.searchForm" size="small" label-width="0px">
+                            <el-form :inline="true" size="small" label-width="0px">
                                 <div class="form-item-no-margin" style="text-align: center;">
                                     <el-form-item>
-                                        <el-checkbox-group v-model="historyData.showColumn" size="small">
+                                        <el-checkbox-group v-model="deviceDataDrawer.showColumn" size="small">
                                             <el-checkbox-button label="v" key="v">电压</el-checkbox-button>
                                             <el-checkbox-button label="c" key="c">电流</el-checkbox-button>
                                             <el-checkbox-button label="f" key="f">功率</el-checkbox-button>
@@ -1108,7 +1108,7 @@
                         <div class="device-monitor-item">
                             <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
-                                <span style="float: left;">近期设备报警次数</span>
+                                <span style="float: left;">今日设备报警次数</span>
                             </div>
 
                             <div id="monitorWarningStatistic" style="height: 250px;">
@@ -1116,12 +1116,12 @@
                             </div>
                         </div>
 
-                        <div class="device-monitor-item" style="height: 324px;">
+                        <div class="device-monitor-item" :style="{height : windowSize.height - 730 + 'px'}">
                             <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
                                 <span style="float: left;">报警日志</span>
                             </div>
-                            <div style="height: 250px;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
+                            <div style="height: 95%;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
                                 <ul v-for="i in 100">
                                     {{i}}
                                 </ul>
@@ -1133,6 +1133,6 @@
         </el-container>
     </el-container>
 </div>
-<script src="../static/assets/js/index.js"></script>
+<script src="/assets/js/index.js"></script>
 </body>
 </html>

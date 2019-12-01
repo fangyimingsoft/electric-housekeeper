@@ -134,11 +134,11 @@ CREATE TABLE `t_data` (
   `primary_capacitive_reactive` float DEFAULT NULL COMMENT '容性无功二次侧',
   `latitude` varchar(12) DEFAULT NULL COMMENT '纬度',
   `longitude` varchar(12) DEFAULT NULL COMMENT '经度',
-  `gpsEffective` tinyint(1) DEFAULT NULL COMMENT 'gps是否有效',
+  `gps_effective` tinyint(1) DEFAULT NULL COMMENT 'gps是否有效',
   `check_digit` varchar(4) DEFAULT NULL COMMENT '检验位',
   `time` datetime DEFAULT NULL COMMENT '数据时间',
   `topic_offset` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`,`code`)
+  PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Data for the table `t_data` */
@@ -265,6 +265,22 @@ insert  into `t_device`(`code`,`dept_id`,`owner`,`type`,`name`,`capacity`,`dept`
 ('863920031483600',NULL,'nku','柱上变压器 全绝缘变台','终端1',315,'南开大学','cs','南开大学综合实验楼','************','*************','C15248680','at.6znq5d5jdv58rv4hb9m2yfsgbg71gam9-2dmp1tfjm0-144k88q-l2butajyv','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5.hd','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5','ezopen://open.ys7.com/C15248680/1.hd.live','ezopen://open.ys7.com/C15248680/1.live',NULL,NULL,'123.1661111111111','41.25694444444444',NULL,40,NULL,NULL,NULL,'cs',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-07-23 16:34:40',28.2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
 ('863920031483659',NULL,'nku','柱上变压器 全绝缘变台','终端4',315,'南开大学','cs','南开大学综合实验楼','************','*************','C15248680','at.6znq5d5jdv58rv4hb9m2yfsgbg71gam9-2dmp1tfjm0-144k88q-l2butajyv','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5.hd','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5','ezopen://open.ys7.com/C15248680/1.hd.live','ezopen://open.ys7.com/C15248680/1.live',NULL,NULL,'123.1661111111111','41.25694444444444',NULL,40,NULL,NULL,NULL,'cs',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-05-04 15:36:43',-80.1,25.1,27.8,19.8,27.1,20.5,0,238.3,238,239.6,6.9,6.6,7,50.05,1630,1570,1680,4900,10,0,10,30,NULL,NULL,NULL,4900,1,1,1,1,0,0,0,0,0,0,4.383,0,1),
 ('863920031484145',NULL,'nku','柱上变压器 全绝缘变台','终端2',315,'南开大学','cs','南开大学综合实验楼','************','*************','C15248680','at.6znq5d5jdv58rv4hb9m2yfsgbg71gam9-2dmp1tfjm0-144k88q-l2butajyv','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5.hd','rtmp://rtmp.open.ys7.com/openlive/a82576af098a4c6fbb5da7576bae02e5','ezopen://open.ys7.com/C15248680/1.hd.live','ezopen://open.ys7.com/C15248680/1.live',NULL,NULL,'123.1661111111111','41.25694444444444',NULL,40,NULL,NULL,NULL,'cs',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-05-04 14:32:30',0,0,0,18,17.6,17.6,17.8,237.2,236.8,239,0,0,0.3,50.03,0,0,70,70,0,0,0,0,NULL,NULL,NULL,70,1,1,1,1,0,0,0,0,0,0,0.143,0,1);
+
+/*Table structure for table `t_warning` */
+
+DROP TABLE IF EXISTS `t_warning`;
+
+CREATE TABLE `t_warning` (
+  `id` int(100) NOT NULL AUTO_INCREMENT,
+  `warning_type` varchar(255) NOT NULL COMMENT '告警类型,直接以中文存储',
+  `device_code` varchar(100) NOT NULL COMMENT '设备编码',
+  `time` datetime DEFAULT NULL COMMENT '报警时间,以topic的timestamp为准',
+  `status` int(10) NOT NULL COMMENT '告警状态,1未处理，2进行中，3已完成',
+  `data_id` int(100) DEFAULT NULL COMMENT '数据ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Data for the table `t_warning` */
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
