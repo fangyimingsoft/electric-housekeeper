@@ -155,7 +155,7 @@ let root =
                     that.getDeviceList((deviceList)=>{
                         deviceList.forEach(item=>{
                             item.loadRate = loadRate(item.currentA,item.currentB,item.currentC,item.capacity);
-                            item.data = [
+                            item.data = [???
                                 {title : "A相",voltage : item.voltageA,current : item.currentA,activePower : item.activePowerA,reactivePower : item.reactivePowerA,powerFactor : item.powerFactorA,voltageHarm : item.voltageHarmA,currentHarm : item.currentHarmA,temperH : item.temperHA,temperL : item.temperHA},
                                 {title : "B相",voltage : item.voltageB,current : item.currentB,activePower : item.activePowerB,reactivePower : item.reactivePowerB,powerFactor : item.powerFactorB,voltageHarm : item.voltageHarmB,currentHarm : item.currentHarmB,temperH : item.temperHB,temperL : item.temperHB},
                                 {title : "C相",voltage : item.voltageC,current : item.currentC,activePower : item.activePowerC,reactivePower : item.reactivePowerC,powerFactor : item.powerFactorC,voltageHarm : item.voltageHarmC,currentHarm : item.currentHarmC,temperH : item.temperHA,temperL : item.temperHC},
@@ -182,13 +182,12 @@ let root =
                 this.deviceDataDrawer.show = true;
                 this.deviceDataDrawer.device = device;
                 let that = this;
+                let instance = echarts.init(document.getElementById('deviceData'));
+                instance.clear();
                 Vue.nextTick(function(){
-                    let instance = echarts.init(document.getElementById('deviceData'));
-                    instance.clear();
                     axios.get(hostPrefix + "api/device/todayData",{params : {code : device.code}}).then(function(config){
                         if(config.data.rows && config.data.rows.length > 0){
                             that.deviceDataDrawer.device.todayData = config.data.rows;
-                            that.deviceDataDrawer.device.data = config.data.rows[config.data.rows.length - 1];
                         }
                         that.updateDeviceDataCharts();
                     }).catch(handleError);

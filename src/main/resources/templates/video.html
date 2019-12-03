@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" >
+    <meta name="renderer" content="webkit">
+    <title>现场环境</title>
+    <style>
+        body{margin:0;text-align: center;}
+        video{width: 100%;}
+    </style>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/moment.js/2.18.1/moment-with-locales.min.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+</head>
+<script>
+</script>
+<body>
+<script src="https://open.ys7.com/sdk/js/1.3/ezuikit.js"></script>
+<!--div class="row">
+    <div class='col-sm-9'>-->
+<video id="myPlayer" poster="" controls playsInline webkit-playsinline autoplay>
+    <!--source src="rtmp://rtmp.open.ys7.com/openlive/f613f5209e2546adb0bd793833292a3f" type="" />
+    <source src="http://hls.open.ys7.com/openlive/f613f5209e2546adb0bd793833292a3f.m3u8" type="application/x-mpegURL" />-->
+
+</video>
+<br>
+<div class="btn-group">
+    <button id="Tleft" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-arrow-left"></span></button>
+    <button id="Tright" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-arrow-right"></span></button>
+    <button id="Tup" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-arrow-up"></span></button>
+    <button id="Tdown" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-arrow-down"></span></button>
+    <button id="big" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-resize-full"></span></button>
+    <button id="small" type="button" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-resize-small"></span></button>
+</div>
+<!--/div>
+  <div class='col-sm-3'>
+  <div class='input-group date' id='timepicker'>
+                <input type='text' class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        <div class="thumbnail">
+            <img src="http://39.105.99.145:8080/warning/00000000001/2018_06_11-2018_06_11/R00000000001_C15248674_20180611111406950_MOTION_DETECTION.jpg"
+             alt="通用的占位符缩略图">
+            <div class="caption">
+                <p>报警时间：</p>
+            </div>
+         </div>
+           <div class="thumbnail">
+            <img src="http://39.105.99.145:8080/warning/00000000001/2018_06_11-2018_06_11/R00000000001_C15248674_20180611111406950_MOTION_DETECTION.jpg""
+                 alt="通用的占位符缩略图">
+            <div class="caption">
+                <p>报警时间：</p>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>-->
+<!--div class="btn-group dropup">
+        <button type="button" id="px" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">分辨率
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li>
+                <a href="#" onclick='myClick1()'>流畅</a>
+            </li>
+            <li>
+                <a href="#">高清</a>
+            </li>
+        </ul>
+    </div>
+</div>-->
+<script>
+    serial="";
+    access_token="";
+    normalsrc="";
+    $(document).ready(function(){
+        var dev_id=$("#hidden_device_id",parent.document).val();
+        console.log(dev_id);
+        var data_obj = {"data":{"id":"#00000000012","equip":"南外线11#变压器","cameraSN":"C15248680","AccessToken":"at.5qa0k3pz7u3udtu9cmxurt685syuun5t-2h6cdjnf5a-0vpm2yg-fcv5nplg1","HDsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5.hd","SmoothsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5"},"msg":1};
+        normalsrc=data_obj.data['SmoothsrcP'];
+        access_token=data_obj.data['AccessToken'];
+        serial=data_obj.data['cameraSN'];
+        $("#myPlayer").attr("src",normalsrc);
+        var player = new EZUIPlayer('myPlayer');
+        player.on('error', function(){
+            console.log('error');
+        });
+        player.on('play', function(){
+            console.log('play');
+        });
+        player.on('pause', function(){
+            console.log('pause');
+        });
+        /*$.ajax(
+            {
+                url: "vedio.php",
+                data:{"id":dev_id},
+                type: "post",
+                beforeSend:function()
+                {
+                    return true;
+                },
+                success:function(data)
+                {
+                    if(data)
+                    {
+                        var data = data;
+                        var data_obj = eval("("+data+")");
+                        normalsrc=data_obj.data['SmoothsrcP'];
+                        access_token=data_obj.data['AccessToken'];
+                        serial=data_obj.data['cameraSN'];
+                        $("#myPlayer").attr("src",normalsrc);
+                        var player = new EZUIPlayer('myPlayer');
+                        player.on('error', function(){
+                            console.log('error');
+                        });
+                        player.on('play', function(){
+                            console.log('play');
+                        });
+                        player.on('pause', function(){
+                            console.log('pause');
+                        });
+                    }
+                },
+            });*/
+        //  var hdsrc="rtmp://rtmp.open.ys7.com/openlive/766e003e65a14782a2aa46c";
+        //  var normalsrc="rtmp://rtmp.open.ys7.com/openlive/f613f5209e2546adb0bd793833292a3f";
+        /*    $("#myPlayer").attr("src",normalsrc);
+            var player = new EZUIPlayer('myPlayer');
+            player.on('error', function(){
+                console.log('error');
+            });
+            player.on('play', function(){
+                console.log('play');
+            });
+            player.on('pause', function(){
+                console.log('pause');
+            });*/
+        var starturl="https://open.ys7.com/api/lapp/device/ptz/start";
+        var stopurl="https://open.ys7.com/api/lapp/device/ptz/stop";
+//var access_token="at.dsbk463b9v3zjuxd33mh69gw7rzywm9t-35z0r47x7v-122177s-81q7et4ke";
+//var serial="C15248674";
+        var status = 0;
+//$(document).ready(function(){
+        $("#Tleft").mousedown(function(){
+            console.log(access_token);
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:2,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("#Tup").mousedown(function(){
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:0,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("#Tdown").mousedown(function(){
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:1,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("#Tright").mousedown(function(){
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:3,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("#big").mousedown(function(){
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:8,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("#small").mousedown(function(){
+            if(status==0)
+            {
+                $.post(starturl,{accessToken:access_token,deviceSerial:serial,channelNo:1,direction:9,speed:1},function(result){
+                });
+                status=1;
+            }
+        });
+        $("button").mouseup(function(){
+            $.post(stopurl,{accessToken:access_token,deviceSerial:serial,channelNo:1},function(result){
+            });
+            status=0;
+        });
+        var newDate = new Date();
+        var t = newDate.toJSON();
+        $("#timepicker").datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: moment.locale('zh-cn'),
+        });
+    });
+</script>
+</body>
+</html>
