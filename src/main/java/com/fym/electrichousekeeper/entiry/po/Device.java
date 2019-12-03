@@ -2,16 +2,17 @@ package com.fym.electrichousekeeper.entiry.po;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Data
 @Table(name = "t_device")
 public class Device{
+    public static final int STATUS_RUNNING = 1;
+
+    public static final int NOT_RUNNING = 0;
+
     @Id
     @Column
     private String code;
@@ -62,6 +63,9 @@ public class Device{
     private Double voltageB;
     @Column(name = "voltage_c")
     private Double voltageC;
+
+    @Column
+    private  Double freq;
 
     /**有功功率*/
     @Column(name = "active_power_a")

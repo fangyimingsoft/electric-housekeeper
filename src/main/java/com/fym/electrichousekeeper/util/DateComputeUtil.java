@@ -25,5 +25,16 @@ public class DateComputeUtil {
         instance.add(type,number);
         return instance.getTime();
     }
+
+    public static Date todayZero(){
+        Date date = new Date();
+        Calendar ins = Calendar.getInstance();
+        ins.setTime(date);
+        ins.set(TYPE_HOUR,0);
+        ins.set(TYPE_MINUTE,0);
+        ins.set(TYPE_SECOND,0);
+        ins.set(TYPE_MILLISECOND,0);
+        return ins.getTime();
+    }
 }
 

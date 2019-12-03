@@ -1,12 +1,6 @@
 package com.fym.electrichousekeeper.entiry.po;
 
-import com.sun.beans.editors.IntegerEditor;
-import org.springframework.classify.annotation.Classifier;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @lombok.Data
@@ -14,6 +8,7 @@ import java.util.Date;
 @Table(name = "t_data")
 public class Data {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;//int(11) NOT NULL
     private String startChar;//varchar(1) NULL起始符号
     private String code;//varchar(20) NOT NULL

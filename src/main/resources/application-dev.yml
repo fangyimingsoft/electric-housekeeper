@@ -11,8 +11,8 @@ spring:
 
   #kafka配置
   kafka:
-    active : false
-    bootstrap-servers: 127.0.0.1:9092
+    active : true
+    bootstrap-servers: 113.57.173.74:9092
     admin:
       fail-fast: true
     consumer:
@@ -39,3 +39,6 @@ logging:
 config:
   login:
     required: false
+  topic:
+    data: LiaoNingData
+    control: LiaoNingControl

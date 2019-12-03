@@ -181,6 +181,18 @@ let root =
             showDeviceData : function(device){
                 this.deviceDataDrawer.show = true;
                 this.deviceDataDrawer.device = device;
+                let that = this;
+                Vue.nextTick(function(){
+                    let instance = echarts.init(document.getElementById('deviceData'));
+                    instance.clear();
+                    axios.get(hostPrefix + "api/device/todayData",{params : {code : device.code}}).then(function(config){
+                        if(config.data.rows && config.data.rows.length > 0){
+                            that.deviceDataDrawer.device.todayData = config.data.rows;
+                            that.deviceDataDrawer.device.data = config.data.rows[config.data.rows.length - 1];
+                        }
+                        that.updateDeviceDataCharts();
+                    }).catch(handleError);
+                });
             },
             deviceTreeFilter : function(value,data,node){
                 if(node.level == 1){
@@ -222,44 +234,49 @@ let root =
                 return node.data.name;
             },
             updateDeviceDataCharts : function(){
+                let todayData = this.deviceDataDrawer.device.todayData;
                 let ins = echarts.init(document.getElementById('deviceData'));
+                let columns = [];
                 let legendList = [];
                 this.deviceDataDrawer.showColumn.forEach(group=>{
                     historyDataColumnInfo.forEach(columnInfo=>{
                         if(group == columnInfo.columnGroup){
-                            legendList.push(columnInfo.columnName);
+                            columns.push({
+                                name : columnInfo.columnName,
+                                field : columnInfo.columnProp
+                            });
+                            //legendList.push(columnInfo.columnName);
                         }
-                    })
+                    });
                 });
                 let seriesList = [];
-                legendList.forEach(item=>{
-                    let data = [];
-                    for(let i = 1;i <= 31;i++){
-                        let random = Math.random();
-                        if(random > 0.9){
-                            random *= -1;
-                        }
-                        data.push(random * 100);
-                    }
+                columns.forEach(column=>{
+                    let columnName = column.name;
+                    let field = column.field;
+                    let list = [];
+                    todayData.forEach(data=>{
+                        list.push(data[field]);
+                    });
                     seriesList.push({
-                        name : item,
+                        name : columnName,
                         type : 'line',
-                        data : data
+                        data : list
                     });
                 });
                 let xAxis = [];
-                for(let i = 1;i <= 60;i++){
-                    xAxis.push("00:" + (i < 10 ? "0" : "") + i);
-                }
+                todayData.forEach(data=>{
+                    xAxis.push(data.time.substr(11,5));
+                });
+                let legend = [];
+                columns.forEach(item=>{
+                    legend.push(item.name);
+                });
                 let options = {
-                    title: {
-                        //text: '折线图'
-                    },
                     tooltip: {
                         trigger: 'axis'
                     },
                     legend: {
-                        data:legendList,
+                        data:legend,
                         type : 'scroll'
                     },
                     grid: {
@@ -357,18 +374,6 @@ let root =
             }
         },
         watch : {
-            "deviceDataDrawer.show" : function(show){
-                if(show){
-                    let that = this;
-                    Vue.nextTick(function(){
-                        let instance = echarts.init(document.getElementById('deviceData'));
-                        instance.clear();
-                        axios.get(hostPrefix + "api/dept/list",/*{withCredentials : true}*/).then(function(config){
-                            that.updateDeviceDataCharts();
-                        }).catch(handleError);
-                    });
-                }
-            },
             "filterText" : function(){
                 this.$refs['tree'].filter();
             },
@@ -424,7 +429,6 @@ let root =
                         });
                     }break;
                     case '8':{
-;
                     }break;
                 }
             }
@@ -511,11 +515,6 @@ let root =
                     ]
                 };
                 ins2.setOption(options);
-
-
-
-
-
 
                 ins2 = echarts.init(document.getElementById("monitorWarningStatistic"));
                 ins2.setOption({
