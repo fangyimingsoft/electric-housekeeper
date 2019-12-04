@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface WarningRepository extends JpaRepository<Warning,Integer> , JpaSpecificationExecutor<Warning> {
     List<Warning> findByTimeGreaterThanEqualAndTimeLessThan(Date start, Date end);
+    long countByTimeGreaterThanEqual(Date time);
 }

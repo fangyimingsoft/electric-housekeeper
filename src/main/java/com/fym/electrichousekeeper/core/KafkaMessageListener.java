@@ -69,7 +69,7 @@ public class KafkaMessageListener {
                 Device device = new Device();
                 device.setName("未知设备");
                 device.setCode(deviceCode);
-                device.setStatus(Device.STATUS_RUNNING);
+                device.setStatus(Device.RUNNING);
                 deviceRepository.save(device);
             }
         } catch (Exception e) {
@@ -91,12 +91,12 @@ public class KafkaMessageListener {
         device.setVoltageA(data.getVoltageA());
         device.setVoltageB(data.getVoltageB());
         device.setVoltageC(data.getVoltageC());
-        device.setTemperHA(data.getTemperHa());
-        device.setTemperHB(data.getTemperHb());
-        device.setTemperHC(data.getTemperHc());
-        device.setTemperLA(data.getTemperLa());
-        device.setTemperLB(data.getTemperLb());
-        device.setTemperLC(data.getTemperLc());
+        device.setTemperHa(data.getTemperHa());
+        device.setTemperHb(data.getTemperHb());
+        device.setTemperHc(data.getTemperHc());
+        device.setTemperLa(data.getTemperLa());
+        device.setTemperLb(data.getTemperLb());
+        device.setTemperLc(data.getTemperLc());
         device.setTemperN(data.getTemperN());
         device.setFreq(data.getFreq());
         device.setActivePowerA(data.getActivePowerA());

@@ -144,7 +144,7 @@
             <el-button size="mini">退出登录</el-button>-->
         </el-header>
         <el-container>
-            <el-aside width="400px" style="overflow: auto;background-color: #EEE;">
+            <el-aside width="400px" style="overflow: auto;background-color: #EEE;" v-show="activeArea != '6'">
                 <div :style="{height : windowSize.height - 80 + 'px'}" style="margin: 10px;background-color: #fff;overflow: auto;border-radius: 3px;">
                     <el-input placeholder="输入关键字过滤"
                               v-model="filterText" style="margin: 10px 20px 0px 20px;width: 340px;"
@@ -820,6 +820,11 @@
                             </div>
                         </div>
                     </div>
+                    <div v-if="activeArea == 6" class="datatable-container">
+                        <div class="device-list" :style="{height : windowSize.height - 133 + 'px'}">
+                            <iframe src="/video" style="width: 100%;height: 98%;padding: 0px;margin: 0px;border: 0px;"></iframe>
+                        </div>
+                    </div>
                     <div v-show="activeArea && activeArea.startsWith('7')" class="datatable-container">
                         <div class="search-area">
                             <el-form :inline="true" :model="warningInfo.searchForm">
@@ -975,40 +980,40 @@
                                     </el-form-item>
                                     <div class="form-item-no-margin">
                                         <span style="display: inline-block;font-size: 14px;height: 40px;line-height: 40px;">
-                                            设备数量：<el-link type="primary">{{deviceList.length}}</el-link>个
+                                            设备数量：<el-link type="primary">{{deviceMonitor.status.all}}</el-link>个
                                             <el-divider direction="vertical"></el-divider>
-                                            正在运行：<el-link type="primary">30</el-link>个
+                                            正在运行：<el-link type="primary">{{deviceMonitor.status.running}}</el-link>个
                                             <el-divider direction="vertical"></el-divider>
-                                            今日运行正常：<el-link type="success">20</el-link>个
+                                            今日运行正常：<el-link type="success">{{deviceMonitor.status.normal}}</el-link>个
                                             <el-divider direction="vertical"></el-divider>
-                                            今日异常设备：<el-link type="danger">4</el-link>个
+                                            今日异常设备：<el-link type="danger">{{deviceMonitor.status.error}}</el-link>个
                                             <el-divider direction="vertical"></el-divider>
-                                            今日报警次数：<el-link type="danger">4</el-link>次
+                                            今日报警次数：<el-link type="danger">{{deviceMonitor.status.warningCount}}</el-link>次
                                         </span>
                                     </div>
                                 </div>
                             </el-form>
                         </div>
-                        <div class="device-list" :style="{height : windowSize.height - 250 + 'px'}">
+                        <div class="device-list" :style="{height : windowSize.height - 250 + 'px'}" v-loading="deviceListLoading"   element-loading-text="正在加载数据">
                             <div class="device-item" v-for="device in monitorDeviceList">
                                 <el-card shadow="hover" :style="{height : '100%',borderColor : '#cbdbff'}">
-                                    <div slot="header" :style="{padding : '10px 20px',backgroundColor : device.status == 0 ? 'gray' : (device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green'))}">
+                                    <div slot="header" :style="{padding : '10px 20px',backgroundColor : device.status == 0 ? 'gray' : (device.loadRate >= 100 ? 'red' : (device.loadRate >= 80 ? 'red' : 'green'))}">
                                         <span style="color: white;">{{device.name}}</span>
-                                        <el-button style="float: right;padding: 3px;" type="text">操作按钮</el-button>
+                                        <el-button style="float: right;padding: 3px;color: #fff;" size="mini" type="text" v-on:click="showDeviceData(device)">更新时间：{{device.updateTime ? device.updateTime.substr(11,5) : ''}}</el-button>
                                     </div>
                                     <div class="device-monitor">
                                         <div class="device-monitor-load">
-                                            <el-progress type="circle" :percentage="device.loadRate" :color="device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green')" :width="70" ></el-progress>
+                                            <el-progress type="circle" :percentage="device.loadRate ? device.loadRate : 0" :color="device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green')" :width="70" ></el-progress>
                                         </div>
                                         <span class="device-info-name">
-                                            <span style="font-size: 14px;">容量：{{device.capacity}}KVA</span>
+                                            <span style="font-size: 14px;">容量：{{device.capacity ? 0 : device.capacity}}KVA</span>
                                             <el-button size="mini"
                                                        :icon="device.status == 1 ? 'el-icon-circle-check' : 'el-icon-circle-close'"
                                                        :style="{color : device.status == 1 ? 'green' : 'red'}"
                                                        type="text" style="float: right;font-weight: bold;">{{device.status == 1 ? '运行中' : '停运'}}</el-button>
                                         </span>
                                         <div class="device-info-status">
-                                            <span style="font-size: 14px;">报警：9</span>
+                                            <span style="font-size: 14px;">报警：0</span>
                                             <el-button size="mini" color="green" type="text" style="float: right;">查看</el-button>
                                         </div>
                                         <div class="device-info-content">
@@ -1016,7 +1021,7 @@
                                                 <el-button :disabled="device.status == 0" circle icon="el-icon-view" size="mini" @click="showDeviceData(device)"></el-button>
                                             </el-tooltip>
                                             <el-tooltip content="安防监控" placement="bottom" effect="light">
-                                                <el-button :disabled="device.status == 0" circle icon="el-icon-video-camera" size="mini"></el-button>
+                                                <el-button :disabled="device.status == 0" circle icon="el-icon-video-camera" v-on:click="checkMonitor" size="mini"></el-button>
                                             </el-tooltip>
 
                                             <el-tooltip content="设备位置" placement="bottom" effect="light">

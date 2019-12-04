@@ -1,11 +1,11 @@
 let hostPrefix = "http://127.0.0.1:8081/";
 let historyDataColumnInfo = [
-    {columnProp : 'temperHA',columnGroup : 't',columnName : 'H-A温度'},
-    {columnProp : 'temperHB',columnGroup : 't',columnName : "H-B温度"},
-    {columnProp : 'temperHC',columnGroup : 't',columnName : "H-C温度"},
-    {columnProp : 'temperLA',columnGroup : 't',columnName : "L-A温度"},
-    {columnProp : 'temperLB',columnGroup : 't',columnName : "L-B温度"},
-    {columnProp : 'temperLC',columnGroup : 't',columnName : "L-C温度"},
+    {columnProp : 'temperHa',columnGroup : 't',columnName : 'H-A温度'},
+    {columnProp : 'temperHb',columnGroup : 't',columnName : "H-B温度"},
+    {columnProp : 'temperHc',columnGroup : 't',columnName : "H-C温度"},
+    {columnProp : 'temperLa',columnGroup : 't',columnName : "L-A温度"},
+    {columnProp : 'temperLb',columnGroup : 't',columnName : "L-B温度"},
+    {columnProp : 'temperLc',columnGroup : 't',columnName : "L-C温度"},
     {columnProp : 'temperN',columnGroup : 't',columnName : "N相温度"},
 
     {columnProp : 'currentA',columnGroup : 'c',columnName : "A相电流"},
@@ -53,6 +53,7 @@ let root =
     new Vue({
         el : "#root",
         data : {
+            deviceListLoading : true,
             deviceDataDrawer : {
                 show : false,
                 device : {},
@@ -64,11 +65,12 @@ let root =
                     deviceType : 'all',
                     order : '1',
                     deptId : null
-                }
+                },
+                status : {}
             },
             filterText : '',
             deptList : [],//部门列表
-            deviceList : [{status : 1,name : 'test'}],//设备列表
+            deviceList : [],//设备列表
             deviceListLoading : true,
             warningInfo : {//告警信息
                 searchForm : {},
@@ -120,9 +122,12 @@ let root =
                     }else if(r.status == 0){
                         return -1;
                     }
-                    //再将报警次数多的设备往前排
-                    let result = l.todayWarningCount > r.todayWarningCount ? -1 : (l.todayWarningCount < r.todayWarningCount ? 1 : 0);
-                    return result;
+                    if(this.deviceMonitor.form.order == 1){
+                        return l.loadRate > r.loadRate ? -1 : (l.loadRate < r.loadRate ? 1 : 0);
+                    }else if(this.deviceMonitor.form.order == 2){
+                        //再将报警次数多的设备往前排
+                        return l.todayWarningCount > r.todayWarningCount ? -1 : (l.todayWarningCount < r.todayWarningCount ? 1 : 0);
+                    }
                 });
             }
         },
@@ -142,6 +147,13 @@ let root =
                         }
                 }).catch(handleError);
             },
+            getDeviceStatusInfo : function(){
+                let that = this;
+                axios.get(hostPrefix + "api/device/allStatus")
+                    .then(function(config){
+                        that.deviceMonitor.status = config.data.data;
+                    }).catch(handleError);
+            },
             /**
              * 初始化页面，加载部门数据、设备列表
              */
@@ -155,12 +167,7 @@ let root =
                     that.getDeviceList((deviceList)=>{
                         deviceList.forEach(item=>{
                             item.loadRate = loadRate(item.currentA,item.currentB,item.currentC,item.capacity);
-                            item.data = [???
-                                {title : "A相",voltage : item.voltageA,current : item.currentA,activePower : item.activePowerA,reactivePower : item.reactivePowerA,powerFactor : item.powerFactorA,voltageHarm : item.voltageHarmA,currentHarm : item.currentHarmA,temperH : item.temperHA,temperL : item.temperHA},
-                                {title : "B相",voltage : item.voltageB,current : item.currentB,activePower : item.activePowerB,reactivePower : item.reactivePowerB,powerFactor : item.powerFactorB,voltageHarm : item.voltageHarmB,currentHarm : item.currentHarmB,temperH : item.temperHB,temperL : item.temperHB},
-                                {title : "C相",voltage : item.voltageC,current : item.currentC,activePower : item.activePowerC,reactivePower : item.reactivePowerC,powerFactor : item.powerFactorC,voltageHarm : item.voltageHarmC,currentHarm : item.currentHarmC,temperH : item.temperHA,temperL : item.temperHC},
-                                {title : "N相",voltage : item.voltageN,current : item.currentN,activePower : item.activePowerN,reactivePower : item.reactivePowerN,powerFactor : item.powerFactorN,voltageHarm : item.voltageHarmN,currentHarm : item.currentHarmN,temperH : item.temperHN,temperL : item.temperHN}
-                            ];
+                            item.data = getRealtimeData(item);
                             that.deptList.forEach(dept=>{
                                 if(item.deptId == dept.id){
                                     dept.children.push({
@@ -174,20 +181,21 @@ let root =
                         Vue.nextTick(()=>{
                             that.deviceListLoading = false;
                             that.deptList.forEach(item=>that.$refs['tree'].setChecked(item.id,true,true));
+                            that.deviceListLoading = false;
                         });
                     });
                 });
+                this.getDeviceStatusInfo();
             },
             showDeviceData : function(device){
                 this.deviceDataDrawer.show = true;
                 this.deviceDataDrawer.device = device;
                 let that = this;
-                let instance = echarts.init(document.getElementById('deviceData'));
-                instance.clear();
                 Vue.nextTick(function(){
                     axios.get(hostPrefix + "api/device/todayData",{params : {code : device.code}}).then(function(config){
                         if(config.data.rows && config.data.rows.length > 0){
                             that.deviceDataDrawer.device.todayData = config.data.rows;
+                            that.deviceDataDrawer.device.data = getRealtimeData(config.data.rows[config.data.rows.length - 1]);
                         }
                         that.updateDeviceDataCharts();
                     }).catch(handleError);
@@ -232,11 +240,19 @@ let root =
                 console.log(node);
                 return node.data.name;
             },
+            checkMonitor : function(){
+                this.activeArea = '6';
+            },
             updateDeviceDataCharts : function(){
-                let todayData = this.deviceDataDrawer.device.todayData;
+                //如果没有今日数据
                 let ins = echarts.init(document.getElementById('deviceData'));
+                let todayData = this.deviceDataDrawer.device.todayData;
+                if(!todayData){
+                    this.deviceDataDrawer.device.data = [];
+                    ins.clear();
+                    return;
+                }
                 let columns = [];
-                let legendList = [];
                 this.deviceDataDrawer.showColumn.forEach(group=>{
                     historyDataColumnInfo.forEach(columnInfo=>{
                         if(group == columnInfo.columnGroup){
@@ -272,7 +288,15 @@ let root =
                 });
                 let options = {
                     tooltip: {
-                        trigger: 'axis'
+                        trigger: 'axis',
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            }
+                        }
                     },
                     legend: {
                         data:legend,
@@ -283,11 +307,6 @@ let root =
                         right: '4%',
                         bottom: '3%',
                         containLabel: true
-                    },
-                    toolbox: {
-                        /*feature: {
-                            saveAsImage: {}
-                        }*/
                     },
                     xAxis: {
                         type: 'category',
@@ -592,6 +611,19 @@ function handleError(info){
 }
 
 function loadRate(ia,ib,ic,capacity){
+    if(!capacity){
+        return 100;
+    }
     let i = capacity/(1.732 * 0.4);
     return Math.round((ia + ib + ic)/3/i * 10000)/100;
+}
+
+function getRealtimeData(item){
+    return [
+        {title : "A相",voltage : item.voltageA,current : item.currentA,activePower : item.activePowerA,reactivePower : item.reactivePowerA,powerFactor : item.powerFactorA,voltageHarm : item.voltageHarmA,currentHarm : item.currentHarmA,temperH : item.temperHa,temperL : item.temperHa},
+        {title : "B相",voltage : item.voltageB,current : item.currentB,activePower : item.activePowerB,reactivePower : item.reactivePowerB,powerFactor : item.powerFactorB,voltageHarm : item.voltageHarmB,currentHarm : item.currentHarmB,temperH : item.temperHb,temperL : item.temperHb},
+        {title : "C相",voltage : item.voltageC,current : item.currentC,activePower : item.activePowerC,reactivePower : item.reactivePowerC,powerFactor : item.powerFactorC,voltageHarm : item.voltageHarmC,currentHarm : item.currentHarmC,temperH : item.temperHa,temperL : item.temperHc},
+        {title : "N相",voltage : item.voltageN,current : item.currentN,activePower : item.activePowerN,reactivePower : item.reactivePowerN,powerFactor : item.powerFactorN,voltageHarm : item.voltageHarmN,currentHarm : item.currentHarmN,temperH : item.temperN,temperL : item.temperN}
+    ];
+
 }

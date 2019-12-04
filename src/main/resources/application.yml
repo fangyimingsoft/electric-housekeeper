@@ -9,15 +9,16 @@ spring:
     show-sql: true
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
-#####公共配置#####
-server:
-  port: 8081
-#thymeleaf配置
+    time-zone: GMT+8
+  #thymeleaf配置
   thymeleaf:
     enabled: true
     suffix: .html
     prefix: classpath:/templates/
     cache: false
+#####公共配置#####
+server:
+  port: 8081
 
 #日志配置
 logging:

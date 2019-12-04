@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 @Table(name = "t_device")
 public class Device{
-    public static final int STATUS_RUNNING = 1;
+    public static final int RUNNING = 1;
 
     public static final int NOT_RUNNING = 0;
 
@@ -36,17 +36,17 @@ public class Device{
     private Integer deptId;
 
     @Column(name = "temper_ha")
-    private Double temperHA;
+    private Double temperHa;
     @Column(name = "temper_hb")
-    private Double temperHB;
+    private Double temperHb;
     @Column(name = "temper_hc")
-    private Double temperHC;
+    private Double temperHc;
     @Column(name = "temper_la")
-    private Double temperLA;
+    private Double temperLa;
     @Column(name = "temper_lb")
-    private Double temperLB;
+    private Double temperLb;
     @Column(name = "temper_lc")
-    private Double temperLC;
+    private Double temperLc;
     @Column(name = "temper_n")
     private Double temperN;
 

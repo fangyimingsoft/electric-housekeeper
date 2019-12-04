@@ -8,6 +8,7 @@
     <style>
         body{margin:0;text-align: center;}
         video{width: 100%;}
+
     </style>
     <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -83,21 +84,23 @@
     $(document).ready(function(){
         var dev_id=$("#hidden_device_id",parent.document).val();
         console.log(dev_id);
-        var data_obj = {"data":{"id":"#00000000012","equip":"南外线11#变压器","cameraSN":"C15248680","AccessToken":"at.5qa0k3pz7u3udtu9cmxurt685syuun5t-2h6cdjnf5a-0vpm2yg-fcv5nplg1","HDsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5.hd","SmoothsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5"},"msg":1};
-        normalsrc=data_obj.data['SmoothsrcP'];
-        access_token=data_obj.data['AccessToken'];
-        serial=data_obj.data['cameraSN'];
-        $("#myPlayer").attr("src",normalsrc);
-        var player = new EZUIPlayer('myPlayer');
-        player.on('error', function(){
-            console.log('error');
-        });
-        player.on('play', function(){
-            console.log('play');
-        });
-        player.on('pause', function(){
-            console.log('pause');
-        });
+        setTimeout(function(){
+            var data_obj = {"data":{"id":"#00000000012","equip":"南外线11#变压器","cameraSN":"C15248680","AccessToken":"at.5qa0k3pz7u3udtu9cmxurt685syuun5t-2h6cdjnf5a-0vpm2yg-fcv5nplg1","HDsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5.hd","SmoothsrcP":"rtmp:\/\/rtmp.open.ys7.com\/openlive\/a82576af098a4c6fbb5da7576bae02e5"},"msg":1};
+            normalsrc=data_obj.data['SmoothsrcP'];
+            access_token=data_obj.data['AccessToken'];
+            serial=data_obj.data['cameraSN'];
+            $("#myPlayer").attr("src",normalsrc);
+            var player = new EZUIPlayer('myPlayer');
+            player.on('error', function(){
+                console.log('error');
+            });
+            player.on('play', function(){
+                console.log('play');
+            });
+            player.on('pause', function(){
+                console.log('pause');
+            });
+        },1000);
         /*$.ajax(
             {
                 url: "vedio.php",
