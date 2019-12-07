@@ -9,6 +9,7 @@
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/animate.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
@@ -105,6 +106,14 @@
 
         .el-card__header{
             padding: 0px;
+        }
+
+        .flip-list-move {
+            transition: transform 600ms;
+        }
+
+        .el-alert--error{
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -962,14 +971,17 @@
                                     </el-form-item>
                                     <el-form-item label="所属部门">
                                         <el-select v-model="deviceMonitor.form.deptId">
+                                            <el-option :value="-1" label="全部" :key="-1"></el-option>
                                             <el-option v-for="item in deptList" :value="item.id" :label="item.name" :key="item.id"></el-option>
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="设备类型">
                                         <el-select v-model="deviceMonitor.form.deviceType">
-                                            <el-option value="all" label="全部设备"></el-option>
-                                            <el-option value="error" label="异常设备"></el-option>
-                                            <el-option value="normal" label="正常设备"></el-option>
+                                            <el-option value="all" label="全部"></el-option>
+                                            <el-option value="normal" label="正常"></el-option>
+                                            <el-option value="running" label="运行中"></el-option>
+                                            <el-option value="warning" label="异常"></el-option>
+                                            <el-option value="notRunning" label="停运"></el-option>
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="排序">
@@ -995,55 +1007,60 @@
                             </el-form>
                         </div>
                         <div class="device-list" :style="{height : windowSize.height - 250 + 'px'}" v-loading="deviceListLoading"   element-loading-text="正在加载数据">
-                            <div class="device-item" v-for="device in monitorDeviceList">
-                                <el-card shadow="hover" :style="{height : '100%',borderColor : '#cbdbff'}">
-                                    <div slot="header" :style="{padding : '10px 20px',backgroundColor : device.status == 0 ? 'gray' : (device.loadRate >= 100 ? 'red' : (device.loadRate >= 80 ? 'red' : 'green'))}">
-                                        <span style="color: white;">{{device.name}}</span>
-                                        <el-button style="float: right;padding: 3px;color: #fff;" size="mini" type="text" v-on:click="showDeviceData(device)">更新时间：{{device.updateTime ? device.updateTime.substr(11,5) : ''}}</el-button>
-                                    </div>
-                                    <div class="device-monitor">
-                                        <div class="device-monitor-load">
-                                            <el-progress type="circle" :percentage="device.loadRate ? device.loadRate : 0" :color="device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green')" :width="70" ></el-progress>
-                                        </div>
-                                        <span class="device-info-name">
-                                            <span style="font-size: 14px;">容量：{{device.capacity ? 0 : device.capacity}}KVA</span>
-                                            <el-button size="mini"
-                                                       :icon="device.status == 1 ? 'el-icon-circle-check' : 'el-icon-circle-close'"
-                                                       :style="{color : device.status == 1 ? 'green' : 'red'}"
-                                                       type="text" style="float: right;font-weight: bold;">{{device.status == 1 ? '运行中' : '停运'}}</el-button>
-                                        </span>
-                                        <div class="device-info-status">
-                                            <span style="font-size: 14px;">报警：0</span>
-                                            <el-button size="mini" color="green" type="text" style="float: right;">查看</el-button>
-                                        </div>
-                                        <div class="device-info-content">
-                                            <el-tooltip content="实时数据" placement="bottom" effect="light">
-                                                <el-button :disabled="device.status == 0" circle icon="el-icon-view" size="mini" @click="showDeviceData(device)"></el-button>
+                            <transition-group :name="useFlipList ? 'flip-list' : ''" :duration="800" enter-active-class="animated zoomIn faster" leave-active-class="animated zoomOut">
+                                <div class="device-item" v-for="device in monitorDeviceList" :key="device.code">
+                                    <el-card shadow="hover" :style="{height : '100%',borderColor : '#cbdbff'}">
+                                        <div slot="header" :style="{padding : '10px 20px',backgroundColor : device.status == 0 ? 'gray' : (device.loadRate >= 100 ? 'red' : (device.loadRate >= 80 ? 'red' : 'green'))}">
+                                            <el-tooltip class="item" effect="dark" :content="device.name" placement="top-start">
+                                                <span class="device-item-name" style="color: white;">{{device.name}}</span>
                                             </el-tooltip>
-                                            <el-tooltip content="安防监控" placement="bottom" effect="light">
-                                                <el-button :disabled="device.status == 0" circle icon="el-icon-video-camera" v-on:click="checkMonitor" size="mini"></el-button>
-                                            </el-tooltip>
+                                            <el-button style="float: right;padding: 3px;color: #fff;" size="mini" type="text" v-on:click="showDeviceData(device)">更新时间：{{device.updateTime ? device.updateTime.substr(11,5) : ''}}</el-button>
+                                        </div>
+                                        <div class="device-monitor">
+                                            <div class="device-monitor-load">
+                                                <el-progress type="circle" :percentage="device.loadRate" :color="device.loadRate > 80 ? 'orange' : (device.loadRate >= 100 ? 'red' : 'green')" :width="70" ></el-progress>
+                                            </div>
+                                            <span class="device-info-name">
+                                                <span style="font-size: 14px;">容量：{{device.capacity}}KVA</span>
+                                                <el-button size="mini"
+                                                           :icon="device.status == 1 ? 'el-icon-circle-check' : 'el-icon-circle-close'"
+                                                           :style="{color : device.status == 1 ? 'green' : 'red'}"
+                                                           type="text" style="float: right;font-weight: bold;">{{device.status == 1 ? '运行中' : '停运'}}</el-button>
+                                            </span>
+                                            <div class="device-info-status">
+                                                <span style="font-size: 14px;">报警：{{device.todayWarningCount}}次</span>
+                                                <el-button size="mini" color="green" type="text" style="float: right;">查看</el-button>
+                                            </div>
+                                            <div class="device-info-content">
+                                                <el-tooltip content="实时数据" placement="bottom" effect="light">
+                                                    <el-button :disabled="device.status == 0" circle icon="el-icon-view" size="mini" @click="showDeviceData(device)"></el-button>
+                                                </el-tooltip>
+                                                <el-tooltip content="安防监控" placement="bottom" effect="light">
+                                                    <el-button :disabled="device.status == 0" circle icon="el-icon-video-camera" v-on:click="checkMonitor" size="mini"></el-button>
+                                                </el-tooltip>
 
-                                            <el-tooltip content="设备位置" placement="bottom" effect="light">
-                                                <el-button :disabled="device.status == 0" circle icon="el-icon-map-location" size="mini" style="margin-right: 10px;"></el-button>
-                                            </el-tooltip>
+                                                <el-tooltip content="设备位置" placement="bottom" effect="light">
+                                                    <el-button :disabled="device.status == 0" circle icon="el-icon-map-location" size="mini" style="margin-right: 10px;"></el-button>
+                                                </el-tooltip>
 
-                                            <el-tooltip content="设备控制" placement="bottom" effect="light">
-                                                <el-popover placement="right" width="200px" trigger="click">
-                                                    <div style="text-align: center;">
-                                                        <el-button size="mini"  icon="el-icon-setting">布防</el-button>
-                                                        <el-button size="mini"  icon="el-icon-setting">监控</el-button>
-                                                        <el-button size="mini"  icon="el-icon-setting">其他</el-button>
-                                                    </div>
-                                                    <el-button :disabled="device.status == 0" slot="reference" circle icon="el-icon-video-pause" size="mini"></el-button>
-                                                </el-popover>
-                                            </el-tooltip>
+                                                <el-tooltip content="设备控制" placement="bottom" effect="light">
+                                                    <el-popover placement="right" width="200px" trigger="click">
+                                                        <div style="text-align: center;">
+                                                            <el-button size="mini"  icon="el-icon-setting">布防</el-button>
+                                                            <el-button size="mini"  icon="el-icon-setting">监控</el-button>
+                                                            <el-button size="mini"  icon="el-icon-setting">其他</el-button>
+                                                        </div>
+                                                        <el-button :disabled="device.status == 0" slot="reference" circle icon="el-icon-video-pause" size="mini"></el-button>
+                                                    </el-popover>
+                                                </el-tooltip>
+                                            </div>
                                         </div>
-                                    </div>
-                                </el-card>
-                            </div>
+                                    </el-card>
+                                </div>
+                            </transition-group>
                         </div>
                         <el-drawer
+                                v-on:closed="deviceMonitor.form.uniqueDevice = null"
                                 :title="deviceDataDrawer.device.name + (deviceDataDrawer.device.updateTime ? ('(更新于' + deviceDataDrawer.device.updateTime + ')') : '')"
                                 :visible.sync="deviceDataDrawer.show"
                                 direction="ltr">
@@ -1124,12 +1141,33 @@
                         <div class="device-monitor-item" :style="{height : windowSize.height - 730 + 'px'}">
                             <div class="device-monitor-title">
                                 <span class="tip" style="border-left-color: gray;float: left;"></span>
-                                <span style="float: left;">报警日志</span>
+                                <el-tooltip class="item" content="未确认" placement="top-start">
+                                    <span style="float: left;">报警日志({{deviceMonitor.warningList.length}})</span>
+                                </el-tooltip>
                             </div>
-                            <div style="height: 95%;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
-                                <ul v-for="i in 100">
-                                    {{i}}
-                                </ul>
+                            <div style="height: 80%;border: 0px #abfff3 solid;border-radius: 3px;overflow: auto;">
+                                <transition-group enter-active-class="animated fadeInRight" leave-active-class="animated fadeOutLeft">
+                                    <el-alert
+                                            v-for="item in deviceMonitor.warningList"
+                                            type="error"
+                                            effect="dark"
+                                            :key="item.id"
+                                            :description="'于' + item.time.substr(11,5) + '发生' + item.warningType"
+                                            :closable="false">
+                                        <span slot="title">
+                                            {{item.deviceName}}
+                                            <el-button size="mini" type="text" v-on:click="showDeviceData(item,true)">查看</el-button>
+                                            <el-popconfirm
+                                                    confirm-button-text='确认'
+                                                    cancel-button-text='取消'
+                                                    icon="el-icon-info"
+                                                    icon-color="red"
+                                                    title="将状态置为已确认？">
+                                                <el-button  slot="reference" size="mini" type="text">确认</el-button>
+                                            </el-popconfirm>
+                                        </span>
+                                    </el-alert>
+                                </transition-group>
                             </div>
                         </div>
                     </div>
@@ -1137,6 +1175,7 @@
             </el-container>
         </el-container>
     </el-container>
+    <audio src="/assets/audio/warning.mp3" id="warningAudio" autoplay="false"></audio>
 </div>
 <script src="/assets/js/index.js"></script>
 </body>

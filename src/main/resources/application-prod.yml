@@ -3,7 +3,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #url替換{ip}
-    url: jdbc:mysql://127.0.0.1:3306/ele_housekeeper?serverTimezone=UTC
+    url: jdbc:mysql://127.0.0.1:3306/ele_housekeeper?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     #用戶名
     username: root
     #密碼

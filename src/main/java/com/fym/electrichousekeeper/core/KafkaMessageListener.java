@@ -3,8 +3,11 @@ package com.fym.electrichousekeeper.core;
 import com.alibaba.fastjson.JSONObject;
 import com.fym.electrichousekeeper.dao.DataRepository;
 import com.fym.electrichousekeeper.dao.DeviceRepository;
+import com.fym.electrichousekeeper.dao.WarningRepository;
 import com.fym.electrichousekeeper.entiry.po.Data;
 import com.fym.electrichousekeeper.entiry.po.Device;
+import com.fym.electrichousekeeper.entiry.po.Warning;
+import com.fym.electrichousekeeper.service.ThresholdService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.tomcat.util.buf.HexUtils;
 import org.slf4j.Logger;
@@ -14,8 +17,11 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class KafkaMessageListener {
 
@@ -24,11 +30,19 @@ public class KafkaMessageListener {
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private MessageParser_Old parser = new MessageParser_Old();
+
+    private  static WarningAlgorithm algorithm = new WarningAlgorithm();
     @Autowired
     private DeviceRepository deviceRepository;
 
     @Autowired
     private DataRepository dataRepository;
+
+    @Autowired
+    private ThresholdService thresholdService;
+
+    @Autowired
+    private WarningRepository warningRepository;
 
 
     @KafkaListener(topics = "${config.topic.data}")
@@ -57,7 +71,6 @@ public class KafkaMessageListener {
             parsedData.setTime(time);
             parsedData.setTopicOffset(new Long(offset).intValue());
             //插入
-            dataRepository.save(parsedData);
             String deviceCode = parsedData.getCode();
             Optional<Device> deviceOpt = deviceRepository.findById(deviceCode);
             if(deviceOpt.isPresent()){
@@ -65,12 +78,19 @@ public class KafkaMessageListener {
                 device.setUpdateTime(new Date());
                 updateDeviceValue(device,parsedData);
                 deviceRepository.save(device);
+                parsedData.setDeviceName(device.getName());
             }else{
                 Device device = new Device();
                 device.setName("未知设备");
                 device.setCode(deviceCode);
                 device.setStatus(Device.RUNNING);
                 deviceRepository.save(device);
+                parsedData.setDeviceName("未知设备");
+            }
+            dataRepository.save(parsedData);
+            List<Warning> warning = warning(parsedData);
+            if(warning.size() > 0){
+                warningRepository.saveAll(warning);
             }
         } catch (Exception e) {
             logger.error(e.toString());
@@ -121,5 +141,62 @@ public class KafkaMessageListener {
         device.setCurrentHarmA(data.getCurrentHarmA());
         device.setCurrentHarmB(data.getCurrentHarmB());
         device.setCurrentHarmC(data.getCurrentHarmC());
+    }
+
+    private List<Warning> warning(Data parsedData){
+        String deviceCode = parsedData.getCode();
+        int capacity = getCapacity(deviceCode);
+        List<String> type = new ArrayList<>();
+        //异常研判
+        double overLoadPercent = thresholdService.getCurrentOverLoadPercent(deviceCode);
+        double lowVoltageStandard = thresholdService.getLowVoltageStandard(deviceCode);
+        double threePhaseUnbalance = thresholdService.getThreePhaseUnbalance(deviceCode);
+
+        boolean overLoadA = algorithm.currentOverLoad(parsedData.getCurrentA(), capacity, overLoadPercent);//电流过载
+        boolean overLoadB = algorithm.currentOverLoad(parsedData.getCurrentB(),capacity,overLoadPercent);//电流过载
+        boolean overLoadC = algorithm.currentOverLoad(parsedData.getCurrentC(),capacity,overLoadPercent);//电流过载
+        List<String> phaseCurrent = algorithm.lackPhase(parsedData.getCurrentA(), parsedData.getCurrentB(), parsedData.getCurrentC());//缺相报警
+        List<String> phaseVoltage = algorithm.lackPhase(parsedData.getVoltageA(),parsedData.getVoltageB(),parsedData.getVoltageC());//缺相报警
+        boolean lowA = algorithm.lowVoltage(parsedData.getVoltageA(),lowVoltageStandard);//低电压
+        boolean lowB = algorithm.lowVoltage(parsedData.getVoltageB(),lowVoltageStandard);//低电压
+        boolean lowC = algorithm.lowVoltage(parsedData.getVoltageC(), lowVoltageStandard);//低电压
+        boolean unbalance = algorithm.threePhaseUnbalance(parsedData.getCurrentA(), parsedData.getCurrentB(), parsedData.getCurrentC(), threePhaseUnbalance);//三项不平衡
+        if(overLoadA && capacity > 0){
+            type.add("A相过负荷");
+        }
+        if(overLoadB && capacity > 0){
+            type.add("B相过负荷");
+        }
+        if(overLoadC && capacity > 0){
+            type.add("C相过负荷");
+        }
+        phaseCurrent.forEach(item->type.add("电流缺" + item));
+        phaseVoltage.forEach(item->type.add("电压缺" + item));
+        if(lowA){
+            type.add("A相低电压");
+        }
+        if(lowB){
+            type.add("B相低电压");
+        }
+        if(lowC){
+            type.add("C相低电压");
+        }
+        if(unbalance){
+            type.add("三相平衡");
+        }
+        return type.stream().map(typeStr->{
+            Warning warning = new Warning();
+            warning.setDataId(parsedData.getId());
+            warning.setDeviceCode(deviceCode);
+            warning.setStatus(Warning.STATUS_CREATED);
+            warning.setTime(parsedData.getTime());
+            warning.setWarningType(typeStr);
+            warning.setDeviceName(parsedData.getDeviceName());
+            return warning;
+        }).collect(Collectors.toList());
+    }
+
+    private int getCapacity(String code){
+        return 0;
     }
 }

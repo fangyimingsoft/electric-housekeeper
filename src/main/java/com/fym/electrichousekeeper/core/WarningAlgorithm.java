@@ -18,11 +18,11 @@ public class WarningAlgorithm {
      * @param percent 过百分比报警
      * @return
      */
-    public boolean currentOverLoad(Double current,int capacity,int percent){
+    public static boolean currentOverLoad(Double current,int capacity,double percent){
         Assert.notNull(current,"电流值不能为null");
         double ratedCurrent = ratedCurrent(capacity);
         Double pt = (current - ratedCurrent) / (ratedCurrent);
-        if(pt > (percent * 1D) / 100){
+        if(pt > percent / 100){
             return true;
         }else{
             return false;
@@ -38,7 +38,7 @@ public class WarningAlgorithm {
      * @param phaseC
      * @return
      */
-    public List<String> lackPhase(Double phaseA, Double phaseB, Double phaseC){
+    public static List<String> lackPhase(Double phaseA, Double phaseB, Double phaseC){
         List<String> describe = new ArrayList<>();
         if(phaseA == null){
             describe.add("A相");
@@ -49,7 +49,7 @@ public class WarningAlgorithm {
         if(phaseC == null){
             describe.add("C相");
         }
-        return describe.size() > 0 ? describe : null;
+        return describe.size() > 0 ? describe : new ArrayList<>(0);
     }
 
     /**
@@ -67,7 +67,7 @@ public class WarningAlgorithm {
      * @param standard
      * @return
      */
-    public boolean lowVoltage(Double voltage,double standard){
+    public static boolean lowVoltage(Double voltage,double standard){
         if(voltage == null){
             throw new NullPointerException();
         }
@@ -85,7 +85,7 @@ public class WarningAlgorithm {
      * @param ic
      * @return
      */
-    public static boolean threePhaseUnbalance(Double ia,Double ib,Double ic,int percent){
+    public static boolean threePhaseUnbalance(Double ia,Double ib,Double ic,double percent){
         if(ia == null || ib == null || ic == null){
             throw new NullPointerException();
         }
@@ -93,7 +93,7 @@ public class WarningAlgorithm {
         max = Math.max(max,ic);
         double min = Math.min(ia,ib);
         min = Math.min(min,ic);
-        if((max - min) / max > ((percent * 1D) / 100)){
+        if((max - min) / max > (percent/ 100)){
             return true;
         }
         return false;

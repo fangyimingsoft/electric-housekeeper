@@ -12,6 +12,7 @@ public class Data {
     private Integer id;//int(11) NOT NULL
     private String startChar;//varchar(1) NULL起始符号
     private String code;//varchar(20) NOT NULL
+    private String deviceName;
     private String frameType;//varchar(2) NULL帧类型
     private Double temperHa;//float NULL温度1
     private Double temperHb;//float NULL

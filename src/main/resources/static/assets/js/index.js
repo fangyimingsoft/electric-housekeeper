@@ -1,4 +1,8 @@
 let hostPrefix = "http://127.0.0.1:8081/";
+let WARNING_STATUS_NEW = 0;
+let WARNING_STATUS_CONFIRM = 1;
+let WARNING_STATUS_PUBLISH = 2;
+let WARNING_STATUS_FINISH = 3;
 let historyDataColumnInfo = [
     {columnProp : 'temperHa',columnGroup : 't',columnName : 'H-A温度'},
     {columnProp : 'temperHb',columnGroup : 't',columnName : "H-B温度"},
@@ -53,6 +57,7 @@ let root =
     new Vue({
         el : "#root",
         data : {
+            useFlipList : false,
             deviceListLoading : true,
             deviceDataDrawer : {
                 show : false,
@@ -64,9 +69,11 @@ let root =
                     deviceName : '',
                     deviceType : 'all',
                     order : '1',
-                    deptId : null
+                    deptId : -1,
+                    uniqueDevice : null
                 },
-                status : {}
+                status : {},
+                warningList : []
             },
             filterText : '',
             deptList : [],//部门列表
@@ -95,25 +102,36 @@ let root =
             echartsLegend : function(){
                 this.historyData.showColumn.indexOf("") != -1
             },
+            existWarning : function(){
+                return this.deviceMonitor.warningList.map(item=>item.id);
+            },
             monitorDeviceList : function(){
                 let that = this;
                 let deviceList = this.deviceList;
                 let deviceName = that.deviceMonitor.form.deviceName;
                 let deptId = that.deviceMonitor.form.deptId;
                 let deviceType = that.deviceMonitor.form.deviceType;
+                let uniqueDevice = that.deviceMonitor.form.uniqueDevice;
                 let filterDevice = deviceList.filter(device=>{
+                    if(uniqueDevice){
+                        return device.code == uniqueDevice;
+                    }
                     if(deviceName && device.name.indexOf(deviceName) == -1){
                         return false;
                     }
-                    if(deptId && device.deptId != deptId){
+                    if(deptId && deptId != -1 && device.deptId != deptId){
                         return false;
                     }
-                    if(deviceType != 'all' && ((deviceType == 'normal' && device.todayWarningCount > 0) || (device == 'error' && !device.todayWarningCount))){
+                    if(deviceType != 'all' &&
+                        ((deviceType == 'normal' && (device.todayWarningCount > 0 || device.status == 0))
+                            || (deviceType == 'warning' && (device.todayWarningCount == 0 || device.status == 0))
+                            || (deviceType == 'running' && device.status != 1)
+                            || (deviceType == 'notRunning' && device.status != 0))){
                         return false;
                     }
                     return true;
                 });
-                return filterDevice.sort((l,r)=>{
+                let result =  filterDevice.sort((l,r)=>{
                     //首先把停运的设备排到最后
                     if(l.status == 0 && r.status == 0){
                         return 0;
@@ -129,6 +147,7 @@ let root =
                         return l.todayWarningCount > r.todayWarningCount ? -1 : (l.todayWarningCount < r.todayWarningCount ? 1 : 0);
                     }
                 });
+                return result;
             }
         },
         methods : {
@@ -151,8 +170,204 @@ let root =
                 let that = this;
                 axios.get(hostPrefix + "api/device/allStatus")
                     .then(function(config){
-                        that.deviceMonitor.status = config.data.data;
+                        let status = config.data.data;
+                        that.deviceMonitor.status = status;
+                        //统计信息图表
+                        let echartIns = echarts.init(document.getElementById('monitorStatistic'));
+                        let options = {
+                            title : {
+                                text: "设备运行状态",
+                                x : 'center'
+                            },
+                            tooltip : {
+                                trigger : 'item',
+                                formatter : "{a} <br/> {b}:{c} ({d}%)"
+                            },
+                            legend:{
+                                orient : 'vertical',
+                                left : 310,
+                                top : 0,
+                                data : ['异常','正常','正在运行','停运'],
+                            },
+                            series : [
+                                {
+                                    name : '设备数量',
+                                    type : 'pie',
+                                    selectMode : 'single',
+                                    radius : [0,'30%'],
+                                    label : {
+                                        normal : {position : 'inner'}
+                                    },
+                                    labelLine : {
+                                        normal : {show : false}
+                                    },
+                                    data : [{ value : status.running,name : '运行中'},{ value : status.notRunning,name : '停运'}]
+                                },
+                                {
+                                    name : '设备数量',
+                                    type : 'pie',
+                                    radius : ['40%','55%'],
+                                    label : {
+                                        normal : {
+                                            formatter: '{b}:{c}',
+                                            backgroundColor : '#eee',
+                                            borderWidth : 1,
+                                            borderRadius : 4,
+                                            rich : {
+                                                a : {
+                                                    color : '#999',
+                                                    lineHeight : 22,
+                                                    align : 'center',
+                                                },
+                                                hr : {
+                                                    borderColor : '#aaa',
+                                                }
+                                            }
+                                        }
+                                    },
+                                    data : [
+                                        {value : status.normal ,name : '正常'},
+                                        {value : status.error ,name : '异常'},
+                                        {value : status.notRunning ,name : '停运'},
+
+                                    ]
+                                }
+                            ]
+                        };
+                        echartIns.setOption(options,{notMerge : true});
                     }).catch(handleError);
+            },
+            getDeviceWarningRank : function(){
+                axios.get(hostPrefix + "api/warning/deviceWarningRank",{params : {top : 5}}).then(function (config) {
+                    let rows = config.data.rows;//已排过序
+                    let echartIns= echarts.init(document.getElementById("monitorWarningStatistic"));
+                    let yAxisData = [];
+                    let warningTypeCountData = [];
+                    let warningCountData = [];
+                    rows.forEach(item=>{
+                        let name = item.name;
+                        let warningTypeCount = item.warningTypeCount;
+                        let warningCount = item.warningCount;
+                        yAxisData.push(name);
+                        warningTypeCountData.push(warningTypeCount);
+                        warningCountData.push(warningCount);
+                    });
+                    echartIns.setOption({
+                            tooltip : {
+                                trigger: 'axis',
+                                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                }
+                            },
+                            title : {
+                                text : "今日设备报警次数排行",
+                                x : 'center',
+                                top : '15px',
+                                textStyle : {
+                                    fontWeight : 'normal',
+                                    color : '#ff1200',
+                                    fontSize : 16
+                                }
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            xAxis:  {
+                                type: 'value'
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: yAxisData
+                            },
+                            series: [
+                                {
+                                    name: '报警类型',
+                                    type: 'bar',
+                                    stack: '总量',
+                                    label: {
+                                        normal: {
+                                            show: true,
+                                            position: 'insideRight'
+                                        }
+                                    },
+                                    data: warningTypeCountData,
+                                    barWidth : '10px',
+                                    itemStyle : {color : '#ffe011'}
+
+                                },
+                                {
+                                    name: '报警次数',
+                                    type: 'bar',
+                                    stack: '总量',
+                                    label: {
+                                        normal: {
+                                            show: true,
+                                            position: 'insideRight'
+                                        }
+                                    },
+                                    data: warningCountData,
+                                    barWidth : '10px',
+                                    itemStyle : {color: '#ff0504'}
+                                }
+                            ]
+                        },{notMerge : true});
+                }).catch(handleError);
+            },
+            getDeviceWarningOverview : function(callback){
+                axios.get(hostPrefix + "api/warning/overview",{params : {date : todayStr()}}).then(function(config){
+                    if(callback){
+                        callback(config.data.rows);
+                    }
+                }).catch(handleError);
+            },
+            getWarningLogData : function(callback){
+                axios.get(hostPrefix + "api/warning/list",{params : {startDate : todayStr(),status : WARNING_STATUS_NEW}}).then(function(config){
+                    if(callback){
+                        callback(config.data.rows);
+                    }
+                }).catch(handleError);
+            },
+            warningLogJob : function(){
+                let that = this;
+                this.getWarningLogData(function(rows){
+                    if(rows && rows.length > 0){
+                        let newList = [];
+                        rows.forEach(warning=>{
+                            if(that.existWarning.indexOf(warning.id)==-1){
+                                newList.push(warning);
+                            }
+                        });
+                        if(newList.length== 0){
+                            return;
+                        }
+                        let set = new Set();
+                        newList.forEach(item=>set.add(item.deviceCode));
+                        that.warning({
+                            deviceName : newList[0].deviceName + "等" + set.size + "个设备",
+                            message : "于" + newList[0].time.substr(11,5) + "发生" + newList.length + "次报警"
+                        });
+                        newList.forEach(item=>{
+                            that.deviceMonitor.warningList.push(item);
+                        });
+                        console.log("新报警：" + newList.length);
+                        that.initPage();
+                    }
+                });
+            },
+            warning : function(deviceWarning,close){
+                this.$notify({
+                    position : 'bottom-right',
+                    type : 'warning',
+                    title: deviceWarning.deviceName,
+                    message: deviceWarning.message,
+                    showClose: false,
+                    onClose : close
+                });
+                let audio = document.getElementById("warningAudio");
+                audio.play();
             },
             /**
              * 初始化页面，加载部门数据、设备列表
@@ -163,9 +378,11 @@ let root =
                     deptList.forEach(dept=>{
                         dept.children = [];
                     });
-                    that.deptList = deptList;
                     that.getDeviceList((deviceList)=>{
                         deviceList.forEach(item=>{
+                            //设备的容量，报警，负载，三个数据可能异常
+                            item.capacity = item.capacity ? item.capacity : 0;
+                            item.todayWarningCount = 0;
                             item.loadRate = loadRate(item.currentA,item.currentB,item.currentC,item.capacity);
                             item.data = getRealtimeData(item);
                             that.deptList.forEach(dept=>{
@@ -177,17 +394,52 @@ let root =
                                 }
                             });
                         });
-                        that.deviceList = deviceList;
+                        //先把设备按照负载率排序
+                        deviceList.sort((left,right)=>{
+                            return left.loadRate > right.loadRate ? -1 : (left.loadRate < right.loadRate ? 1 : 0);
+                        });
+                        that.getDeviceWarningOverview(function(result){
+                            if(result && result.length > 0){
+                                let warningMap = {};
+                                result.forEach(warning=>{
+                                    warningMap[warning.deviceCode] = warning.warningCount;
+                                });
+                                deviceList.forEach(device=>{
+                                    let deviceCode = device.code;
+                                    let count = warningMap[deviceCode];
+                                    Vue.set(device,'todayWarningCount',count ? count : 0);
+                                });
+                            }
+                            that.deviceList = deviceList;
+                            that.deptList = deptList;
+                        });
                         Vue.nextTick(()=>{
                             that.deviceListLoading = false;
                             that.deptList.forEach(item=>that.$refs['tree'].setChecked(item.id,true,true));
-                            that.deviceListLoading = false;
+                            setTimeout(function(){
+                                that.useFlipList = true;
+                            },2500);
+                        });
+
+                        that.getWarningLogData(function(rows){
+                            that.deviceMonitor.warningList = rows;
                         });
                     });
                 });
                 this.getDeviceStatusInfo();
+                this.getDeviceWarningRank();
             },
-            showDeviceData : function(device){
+            showDeviceData : function(device,isFromWarning){
+                if(isFromWarning){
+                    let deviceCode = device.deviceCode;
+                    for(let i = 0;i < this.deviceList.length;i++){
+                        if(deviceCode == this.deviceList[i].code){
+                            device = this.deviceList[i];
+                            this.deviceMonitor.form.uniqueDevice = device.code;
+                            break;
+                        }
+                    }
+                }
                 this.deviceDataDrawer.show = true;
                 this.deviceDataDrawer.device = device;
                 let that = this;
@@ -237,7 +489,7 @@ let root =
                 console.log(param1);
             },
             formatNodeStr : function(node){
-                console.log(node);
+
                 return node.data.name;
             },
             checkMonitor : function(){
@@ -470,138 +722,18 @@ let root =
                 console.log("主页Vue加载时间：" + (endTime - startTime));
                 that.initPage();
             });
-            Vue.nextTick(function(){
-                let ins2= echarts.init(document.getElementById('monitorStatistic'));
-                let options = {
-                    title : {
-                        text: "设备运行状态",
-                        x : 'center'
-                    },
-                    tooltip : {
-                        trigger : 'item',
-                        formatter : "{a} <br/> {b}:{c} ({d}%)"
-                    },
-                    legend:{
-                        orient : 'vertical',
-                        left : 310,
-                        top : 80,
-                        data : ['异常','正常','正在运行','停运'],
-                    },
-                    series : [
-                        {
-                            name : '设备数量',
-                            type : 'pie',
-                            selectMode : 'single',
-                            radius : [0,'30%'],
-                            label : {
-                                normal : {position : 'inner'}
-                            },
-                            labelLine : {
-                                normal : {show : false}
-                            },
-                            data : [{ value : 344,name : '运行中'},{ value : 100,name : '停运'}]
-                        },
-                        {
-                            name : '设备数量',
-                            type : 'pie',
-                            radius : ['40%','55%'],
-                            label : {
-                                normal : {
-                                    formatter: 'sdf',
-                                    backgroundColor : '#eee',
-                                    borderWidth : 1,
-                                    borderRadius : 4,
-                                    rich : {
-                                        a : {
-                                            color : '#999',
-                                            lineHeight : 22,
-                                            align : 'center',
-                                        },
-                                        hr : {
-                                            borderColor : '#aaa',
-                                        }
-                                    }
-                                }
-                            },
-                            data : [
-                                {value : 200 ,name : '正常'},
-                                {value : 144 ,name : '异常'},
-                                {value : 100 ,name : '停运'},
-
-                            ]
-                        }
-                    ]
-                };
-                ins2.setOption(options);
-
-                ins2 = echarts.init(document.getElementById("monitorWarningStatistic"));
-                ins2.setOption({
-                        tooltip : {
-                            trigger: 'axis',
-                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-                            }
-                        },
-                        title : {
-                            text : "今日设备报警次数排行",
-                            x : 'center',
-                            top : '15px',
-                            textStyle : {
-                                fontWeight : 'normal',
-                                color : '#ff1200',
-                                fontSize : 16
-                            }
-                        },
-                        /*legend: {
-                            //data: ['报警次数', '报警类型']
-                        },*/
-                        grid: {
-                            left: '3%',
-                            right: '4%',
-                            bottom: '3%',
-                            containLabel: true
-                        },
-                        xAxis:  {
-                            type: 'value'
-                        },
-                        yAxis: {
-                            type: 'category',
-                            data: ['龙南线七里分47#2','玉深泵占','紫莎坨线#44变压器','南外线11#变压器','设备6']
-                        },
-                        series: [
-                            {
-                                name: '报警类型',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
-                                    }
-                                },
-                                data: [3, 2, 5, 9, 10],
-                                barWidth : '10px',
-                                itemStyle : {color : '#ffe011'}
-
-                            },
-                            {
-                                name: '报警次数',
-                                type: 'bar',
-                                stack: '总量',
-                                label: {
-                                    normal: {
-                                        show: true,
-                                        position: 'insideRight'
-                                    }
-                                },
-                                data: [5, 11, 15, 13, 20],
-                                barWidth : '10px',
-                                itemStyle : {color: '#ff0504'}
-                            }
-                        ]
-                    }
-                );
-            })
+            /*let count = 0;
+            setInterval(function(){
+                that.warning({
+                    deviceCode : "" + count,
+                    deviceName : '设备#' + count++,
+                    warningType : 'A相三相不平衡报警',
+                    time : '2019-01-10 11:23:00'
+                });
+            },5000);*/
+            setInterval(function(){
+                that.warningLogJob();
+            },10000);
         }
     });
 
@@ -626,4 +758,11 @@ function getRealtimeData(item){
         {title : "N相",voltage : item.voltageN,current : item.currentN,activePower : item.activePowerN,reactivePower : item.reactivePowerN,powerFactor : item.powerFactorN,voltageHarm : item.voltageHarmN,currentHarm : item.currentHarmN,temperH : item.temperN,temperL : item.temperN}
     ];
 
+}
+
+function todayStr(){
+    let now = new Date();
+    let month = now.getMonth() + 1;
+    let date = now.getDate();
+    return now.getFullYear() + "-" + (month > 9 ? month : ('0' + month)) + "-" + (date > 9 ? date : ("0" + date));
 }

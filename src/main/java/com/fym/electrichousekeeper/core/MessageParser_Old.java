@@ -60,7 +60,7 @@ public class MessageParser_Old {
         //15~49  7路温度(每种温度长度为5；01123代表+112.3度)
         String temperStr7 = substrWithLength(message, strPos.get(), 35, posConsumer);
         List<Double> tempers = new ArrayList<>(7);
-        for(int i = 0;i < 7;i++){
+        /*for(int i = 0;i < 7;i++){
             String temperStr = temperStr7.substring(i * 5, (i + 1) * 5);
             Double firstBit = parseToDouble(temperStr.substring(0, 1));
             Double middleBits = parseToDouble(temperStr.substring(1,4));
@@ -68,7 +68,26 @@ public class MessageParser_Old {
             boolean isPositive = firstBit != 0D;
             Double temper =  (isPositive ? 1d : -1d) * middleBits + (lastBit / 10d);
             tempers.add(temper);
+        }*/
+
+        for(int i = 0;i < 7;i++){
+            String temperStr = temperStr7.substring(i * 5, (i + 1) * 5);
+            Double firstBit = parseToDouble(temperStr.substring(0, 1));
+            double temper;
+            if (firstBit >0){
+                int w = (Integer.valueOf(temperStr.charAt(1))-48)*1000;
+                temper=(w+parseToDouble(temperStr.substring(2,5))-32768)/10;
+            }else{
+                temper= parseToDouble(temperStr.substring(1,5))/10;
+                if (temper >3200) temper=0.0; // 数据文档不清楚，按0处理
+            }
+            //Double middleBits = parseToDouble(temperStr.substring(1,4));
+            //Double lastBit = parseToDouble(temperStr.substring(4,5));
+            //boolean isPositive = firstBit != 0D;
+            //Double temper =  (isPositive ? 1d : -1d) * middleBits + (lastBit / 10d);
+            tempers.add(temper);
         }
+        //------------------------------------------------------------
         data.setTemperHa(tempers.get(0));
         data.setTemperHb(tempers.get(1));
         data.setTemperHc(tempers.get(2));

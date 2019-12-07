@@ -62,6 +62,7 @@ CREATE TABLE `t_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `start_char` varchar(1) DEFAULT NULL COMMENT '起始符号',
   `code` varchar(20) NOT NULL,
+  `device_name` varchar(255) DEFAULT NULL,
   `frame_type` varchar(2) DEFAULT NULL COMMENT '帧类型',
   `temper_ha` float DEFAULT NULL COMMENT '温度1',
   `temper_hb` float DEFAULT NULL,
@@ -121,7 +122,7 @@ CREATE TABLE `t_data` (
   `time` datetime DEFAULT NULL COMMENT '数据时间',
   `topic_offset` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=16633 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=38726 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `t_device` */
 
@@ -214,11 +215,12 @@ CREATE TABLE `t_warning` (
   `id` int(100) NOT NULL AUTO_INCREMENT,
   `warning_type` varchar(255) NOT NULL COMMENT '告警类型,直接以中文存储',
   `device_code` varchar(100) NOT NULL COMMENT '设备编码',
+  `device_name` varchar(255) DEFAULT NULL,
   `time` datetime DEFAULT NULL COMMENT '报警时间,以topic的timestamp为准',
-  `status` int(10) NOT NULL COMMENT '告警状态,1未处理，2进行中，3已完成',
+  `status` int(10) NOT NULL COMMENT '告警状态,0未处理，1已确认，2已发布工单，3已完成',
   `data_id` int(100) DEFAULT NULL COMMENT '数据ID',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1674 DEFAULT CHARSET=utf8;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
