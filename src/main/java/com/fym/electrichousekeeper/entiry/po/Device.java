@@ -29,11 +29,19 @@ public class Device{
     @Column
     private Date updateTime;
 
+    private Date infoUpdateTime;
+
     @Column
     private Integer status;
 
     @Column
     private Integer deptId;
+
+    private String dept;
+
+    private String lng;
+
+    private String lat;
 
     @Column(name = "temper_ha")
     private Double temperHa;

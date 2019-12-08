@@ -3,15 +3,18 @@ package com.fym.electrichousekeeper.controller;
 import com.fym.electrichousekeeper.common.ApiResponse;
 import com.fym.electrichousekeeper.common.PageableResponse;
 import com.fym.electrichousekeeper.dao.DataRepository;
+import com.fym.electrichousekeeper.dao.DeptRepository;
 import com.fym.electrichousekeeper.dao.DeviceRepository;
 import com.fym.electrichousekeeper.dao.WarningRepository;
 import com.fym.electrichousekeeper.entiry.po.Data;
+import com.fym.electrichousekeeper.entiry.po.Dept;
 import com.fym.electrichousekeeper.entiry.po.Device;
 import com.fym.electrichousekeeper.util.DateComputeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.DateUtils;
 
@@ -26,6 +29,9 @@ public class DeviceController {
     private DeviceRepository deviceRepository;
 
     @Autowired
+    private DeptRepository deptRepository;
+
+    @Autowired
     private DataRepository dataRepository;
 
     @Autowired
@@ -37,9 +43,17 @@ public class DeviceController {
         Pageable pageInfo = PageRequest.of(currentPage - 1,pageSize);
         Page<Device> all = deviceRepository.findAll(pageInfo);
         PageableResponse response = PageableResponse.OK(all.getTotalElements(), all.getTotalPages());
-        System.out.println(all.get().count());
         response.setRows(all.getContent());
         return response;
+    }
+
+    @GetMapping("/searchList")
+    public ApiResponse filterList(@RequestParam(value = "name",required = false)String name){
+        ApiResponse response = ApiResponse.OK();
+        name = StringUtils.isEmpty(name) ? "" : name.trim();
+        List<Device> devicesByNameLike = deviceRepository.findDevicesByNameLike("%" + name + "%");
+        response.setRows(devicesByNameLike);
+        return  response;
     }
 
     @GetMapping("/todayData")
@@ -92,6 +106,34 @@ public class DeviceController {
         resultMap.put("normal",normalCount);
         resultMap.put("error",errorCount);
         response.setData(resultMap);
+        return response;
+    }
+
+    @PostMapping()
+    public ApiResponse updateDevice(@RequestParam("code") String code,
+                                    @RequestParam("name")String name,
+                                    @RequestParam("type") String type,
+                                    @RequestParam("capacity") Integer capacity,
+                                    @RequestParam("lng") String lng,
+                                    @RequestParam("lat") String lat,
+                                    @RequestParam("status") Integer status,
+                                    @RequestParam("deptId") Integer deptId){
+        ApiResponse response = ApiResponse.OK();
+        Device device = new Device();
+        device.setCode(code);
+        device.setName(name);
+        device.setType(type);
+        device.setCapacity(capacity * 1D);
+        device.setStatus(status);
+        device.setLng(lng);
+        device.setLat(lat);
+        device.setDeptId(deptId);
+        device.setInfoUpdateTime(new Date());
+        Optional<Dept> byId = deptRepository.findById(deptId);
+        if(byId.isPresent()){
+            device.setDept(byId.get().getName());
+        }
+        deviceRepository.save(device);
         return response;
     }
 }

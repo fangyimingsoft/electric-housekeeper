@@ -18,4 +18,6 @@ public interface DeviceRepository extends JpaRepository<Device, String>{
 
     @Query("select d.code,count(w.deviceCode) from Device d left join Warning w on d.code = w.deviceCode and w.time >= ?1 where d.status = 1 group by d.code")
     List findDeviceWarningCountAfter(Date date);
+
+    List<Device> findDevicesByNameLike(String name);
 }

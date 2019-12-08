@@ -122,7 +122,7 @@ CREATE TABLE `t_data` (
   `time` datetime DEFAULT NULL COMMENT '数据时间',
   `topic_offset` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=38726 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=53800 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `t_device` */
 
@@ -164,6 +164,7 @@ CREATE TABLE `t_device` (
   `account3` varchar(20) DEFAULT NULL,
   `name3` varchar(20) DEFAULT NULL,
   `phone3` varchar(20) DEFAULT NULL,
+  `info_update_time` datetime DEFAULT NULL COMMENT '信息修改时间',
   `update_time` datetime DEFAULT NULL COMMENT '数据更新时间',
   `temper_ha` float DEFAULT 0 COMMENT '温度1',
   `temper_hb` float DEFAULT 0,
@@ -206,6 +207,20 @@ CREATE TABLE `t_device` (
   `protect` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+/*Table structure for table `t_threshold` */
+
+DROP TABLE IF EXISTS `t_threshold`;
+
+CREATE TABLE `t_threshold` (
+  `id` int(100) NOT NULL AUTO_INCREMENT,
+  `type_code` varchar(100) NOT NULL,
+  `value` int(100) NOT NULL,
+  `is_global` tinyint(1) NOT NULL,
+  `device_code` varchar(100) DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `t_warning` */
 

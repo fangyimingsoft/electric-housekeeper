@@ -8,11 +8,12 @@
             integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <link rel="stylesheet" href="../static/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/common.css">
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
     <script src="https://cdn.bootcss.com/echarts/4.4.0-rc.1/echarts-en.min.js"></script>
+    <script src="/assets/js/management.js"></script>
     <style>
         [v-cloak]{
             display: none;
@@ -40,10 +41,6 @@
                         <span slot="title">设备管理</span>
                     </el-menu-item>
                     <el-menu-item index="3">
-                        <i class="el-icon-share"></i>
-                        <span slot="title">设备控制</span>
-                    </el-menu-item>
-                    <el-menu-item index="4">
                         <i class="el-icon-setting"></i>
                         <span slot="title">阈值设置</span>
                     </el-menu-item>
@@ -130,142 +127,180 @@
 
                     <el-card class="box-card" style="height:98%;" v-show="activeArea == '2'">
                         <div slot="header">
-                            <span>设备管理</span>
-                            <el-button style="float: right; padding: 3px 0" type="text" @click="addDevice">添加设备</el-button>
+                            <span>设备管理({{device.deviceList.length}})</span>
+                            <el-button style="margin-left: 100px;float: right; padding: 3px 0" type="text" @click="addDevice">添加设备</el-button>
+                            <el-input v-model="device.deviceName" suffix-icon="el-icon-search" size="mini" style="float: right;width: 150px;"></el-input>
                         </div>
-                        <el-table :data="user.userList" stripe :height="windowSize.height - 300 + 'px'">
-                            <el-table-column prop="username" align="center" label="设备编号">
-
-                            </el-table-column>
-                            <el-table-column prop="role" align="center" label="设备型号">
+                        <el-table :data="showDevices" stripe :height="windowSize.height - 300 + 'px'">
+                            <el-table-column prop="code" align="center" label="设备编号">
 
                             </el-table-column>
                             <el-table-column prop="name" align="center" label="设备名称">
 
                             </el-table-column>
-                            <el-table-column prop="tel" align="center" label="容量">
+                            <el-table-column prop="type" align="center" label="设备类型">
 
                             </el-table-column>
-                            <el-table-column prop="tel" align="center" label="所属单位">
+                            <el-table-column prop="capacity" align="center" label="容量">
 
                             </el-table-column>
-                            <el-table-column prop="tel" align="center" label="管理员">
+                            <el-table-column prop="deptId" align="center" label="所属部门">
 
                             </el-table-column>
-                            <el-table-column prop="tel" align="center" label="维修班">
+                            <el-table-column align="center" label="经纬度">
 
                             </el-table-column>
-                            <el-table-column prop="tel" align="center" label="维修人员">
-
+                            <el-table-column align="center" label="状态">
+                                <template slot-scope="scope">
+                                    <el-tag
+                                    :type="scope.row.status === 1 ? 'success' : 'danger'" disable-transitions>
+                                        <i :class="scope.row.status == 1 ? 'el-icon-check' : 'el-icon-error'"></i>
+                                        {{scope.row.status == 1 ? '运行中' : '停运'}}
+                                    </el-tag>
+                                </template>
                             </el-table-column>
                             <el-table-column align="center" label="操作" width="205">
                                 <template slot-scope="scope">
-                                    <el-button type="primary" icon="el-icon-edit" size="small">编辑</el-button>
-                                    <el-button type="danger" icon="el-icon-delete" size="small">删除</el-button>
+                                    <el-button type="primary" icon="el-icon-edit" @click="editDevice(scope.row)" size="small">编辑</el-button>
+                                    <!--<el-button type="danger" icon="el-icon-delete" size="small">删除</el-button>-->
                                 </template>
                             </el-table-column>
                         </el-table>
                         <div style="text-align: right;padding-top:10px;">
                             <el-pagination
+                                    :page-size="device.deviceList.length"
                                     background
                                     layout="prev, pager, next"
-                                    :total="1000">
+                                    :total="device.deviceList.length">
                             </el-pagination>
                         </div>
                     </el-card>
+
+                    <el-card class="box-card" style="height:98%;" v-show="activeArea == '3'">
+                        <div slot="header">
+                            <span>阈值设置</span>
+                            <!--<el-button style="float: right; padding: 3px 0" type="text" @click="addDevice">添加设备</el-button>-->
+                        </div>
+                        <el-form ref="thresholdForm" :model="threshold" label-width="120px" inline :rules="threshold.rules">
+                            <el-form-item label="设备列表">
+                                <el-select v-model="threshold.deviceCode" filterable remote clearable placeholder="请输入" :remote-method="deviceFilter" >
+                                    <el-option
+                                            v-for="item in threshold.deviceOptionList"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" icon="el-icon-search">搜索</el-button>
+                            </el-form-item>
+                            <el-divider><i class="el-icon-setting"></i></el-divider>
+                            <div>
+                                <el-form-item label="电流过负荷" :prop="CODE_CURRENT_OVER_LOAD">
+                                    <el-input
+                                            placeholder="请输入"
+                                            v-model.number="threshold[CODE_CURRENT_OVER_LOAD]">
+                                        <span slot="suffix">%</span>
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label=" ">
+                                    <el-tag>某相电流大于额定值{{threshold.currentOver}}%</el-tag>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label="超温" :prop="CODE_OVER_TEMPERATURE">
+                                    <el-input v-model.number="threshold[CODE_OVER_TEMPERATURE]"><span slot="suffix">度</span></el-input>
+                                </el-form-item>
+                                <el-form-item label=" ">
+                                    <el-tag>测温点超过{{threshold.overTemperature}}度</el-tag>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label="低电压" :prop="CODE_LOW_VOLTAGE">
+                                    <el-input v-model.number="threshold[CODE_LOW_VOLTAGE]"><span slot="suffix">kV</span></el-input>
+                                </el-form-item>
+                                <el-form-item label=" ">
+                                    <el-tag>相电压低于{{threshold.lowVoltage}}kV</el-tag>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label="三相不平衡" :prop="CODE_PHASE_UNBALANCE">
+                                    <el-input v-model.number="threshold[CODE_PHASE_UNBALANCE]"><span slot="suffix">%</span></el-input>
+                                </el-form-item>
+                                <el-form-item label=" ">
+                                    <el-tag>（最大电流-最小电流）/最大电流大于{{threshold.unbalance}}%</el-tag>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label="电量突增" :prop="CODE_ELECTRIC_INCREASE">
+                                    <el-input v-model.number="threshold[CODE_ELECTRIC_INCREASE]"><span slot="suffix">%</span></el-input>
+                                </el-form-item>
+                                <el-form-item label=" ">
+                                    <el-tag>后一时段电量增减超过前一时段的{{threshold.electricIncrease}}%</el-tag>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label="谐波过限" :prop="CODE_HARMONIC_OVER_LIMIT">
+                                    <el-input v-model.number="threshold[CODE_HARMONIC_OVER_LIMIT]"></el-input>
+                                </el-form-item>
+                            </div>
+                            <div>
+                                <el-form-item label=" ">
+                                    <el-button type="success" v-on:click="saveThreshold">保存</el-button>
+                                </el-form-item>
+                            </div>
+                        </el-form>
+                    </el-card>
+
+                    <el-drawer
+                            @open="initDeptData"
+                            :title="device.form.isEdit ? '设备编辑' : '添加设备'"
+                            :visible.sync="device.deviceDrawerShow"
+                            direction="ltr">
+                        <el-form label-width="100px" style="padding-right: 25px;" ref="deviceForm" :model="device.form">
+                            <el-form-item label="设备编码" prop="code" :rules="[{required : true,message : '请填写设备编码'}]">
+                                <el-input v-model="device.form.code"></el-input>
+                            </el-form-item>
+                            <el-form-item label="设备名称" prop="name" :rules="[{required : true,message : '请填写设备名称'}]">
+                                <el-input v-model="device.form.name"></el-input>
+                            </el-form-item>
+                            <el-form-item label="设备类型" prop="type" :rules="[{required : true,message : '请选择设备类型'}]">
+                                <el-input v-model="device.form.type"></el-input>
+                            </el-form-item>
+                            <el-form-item label="容量" prop="capacity" :rules="[{required : true,message : '请输入数字',type : 'number'}]">
+                                <el-input v-model.number="device.form.capacity"></el-input>
+                            </el-form-item>
+                            <el-form-item label="所属部门" prop="deptId" :rules="[{required : true,message : '请选择所属部门'}]">
+                                <el-select v-model="device.form.deptId">
+                                    <el-option v-for="dept in deptList" :label="dept.name" :value="dept.id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="经度" prop="lng" :rules="[{required : true,message : '请输入经度'}]">
+                                <el-input v-model="device.form.lng"></el-input>
+                            </el-form-item>
+                            <el-form-item label="纬度" prop="lat" :rules="[{required : true,message : '请输入纬度'}]">
+                                <el-input v-model="device.form.lat"></el-input>
+                            </el-form-item>
+                            <el-form-item label="状态" prop="status">
+                                <el-switch
+                                        v-model="device.form.status"
+                                        :active-value="1"
+                                        :inactive-value="0"
+                                        active-text="投运"
+                                        inactive-text="停运">
+                                </el-switch>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button @click="doSaveDevice">保存</el-button>
+                                <el-button @click="device.deviceDrawerShow = false">取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-drawer>
                 </el-main>
             </el-container>
         </el-container>
     </el-container>
 </div>
-<script>
-    let windowSize = {
-        width : document.documentElement.clientWidth,
-        height : document.documentElement.clientHeight
-    };
-    $(function () {
-        $(window).resize(function(){
-            let windowWidth = document.documentElement.clientWidth;
-            let windowHeight = document.documentElement.clientHeight;
-            windowSize.width = windowWidth;
-            windowSize.height = windowHeight;
-        });
-    });
-    let root =
-    new Vue({
-        el : "#root",
-        data : {
-            windowSize : windowSize,
-            activeArea : "1",
-            user : {
-                addUserDrawerShow : false,
-                userList : [{
-                    id : 1,
-                    username : 'zhangsan',
-                    name : '张三',
-                    role : '管理员',
-                    tel : '15827656732',
-                    status :1,
-                    active : true
-                },{
-                    id : 2,
-                    username : 'lisi',
-                    name : '李四',
-                    role : '用户',
-                    tel : '15827656732',
-                    status : 0,
-                    active : true
-                },{
-                    id :3,
-                    username : '王五',
-                    name : '王五',
-                    role : '用户',
-                    tel : '15827656732',
-                    status :1,
-                    active : false
-                },{
-                    id : 4,
-                    username : 'admin',
-                    name : 'admin',
-                    role : '管理员',
-                    tel : '15827656732',
-                    active : true
-                },{
-                    id : 5,
-                    username : 'zhangsan',
-                    name : '张三',
-                    role : '管理员',
-                    tel : '15827656732',
-                    active : false
-                }],
-                form : {},
-                userFormRule : {
-                    username : [{required : true,message : '请输入用户名'}],
-                    password : [{required: true,message : '请输入密码'}],
-                    passwordRepeat : [{validator : function(a,b,callback){
-                        if(root._data.user.form.password !== null
-                            && root._data.user.form.password !== undefined
-                            && root._data.user.form.password === root._data.user.form.passwordRepeat){
-                            callback();
-                        }else{
-                            callback(new Error("两次输入的密码不匹配"));
-                        }
-                    }}],
-                    name : [{required : true,message : "请输入姓名"}],
-                    tel : [{ required : true,message : "请输入联系方式"}],
-                    role : [{required : true,message : "请选择权限"}]
-                }
-            }
-        },
-        methods : {
-            userStatusChange : function(userId,active){
-
-            },
-            addUser : function(){
-                this.user.addUserDrawerShow = true;
-            }
-        }
-    })
-</script>
 </body>
 </html>

@@ -93,6 +93,7 @@ public class KafkaMessageListener {
                 warningRepository.saveAll(warning);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(e.toString());
         }
     }
@@ -161,6 +162,9 @@ public class KafkaMessageListener {
         boolean lowB = algorithm.lowVoltage(parsedData.getVoltageB(),lowVoltageStandard);//低电压
         boolean lowC = algorithm.lowVoltage(parsedData.getVoltageC(), lowVoltageStandard);//低电压
         boolean unbalance = algorithm.threePhaseUnbalance(parsedData.getCurrentA(), parsedData.getCurrentB(), parsedData.getCurrentC(), threePhaseUnbalance);//三项不平衡
+        List<String> overTemper = algorithm.overTemperature(parsedData.getTemperHa(), parsedData.getTemperHb(), parsedData.getTemperHc(),
+                parsedData.getTemperLa(), parsedData.getTemperLb(), parsedData.getTemperLc(), parsedData.getTemperN(),
+                thresholdService.getOverTemperStandard(deviceCode));
         if(overLoadA && capacity > 0){
             type.add("A相过负荷");
         }
@@ -183,6 +187,9 @@ public class KafkaMessageListener {
         }
         if(unbalance){
             type.add("三相平衡");
+        }
+        if(overTemper.size() > 0){
+            overTemper.forEach(desc->type.add(desc + "超温"));
         }
         return type.stream().map(typeStr->{
             Warning warning = new Warning();

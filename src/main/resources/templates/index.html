@@ -140,11 +140,11 @@
                     <el-menu-item index="7-2">季报</el-menu-item>
                     <el-menu-item index="7-3">年报</el-menu-item>
                 </el-submenu>
-                <el-menu-item index="10"><i style="color: white;" class="el-icon-setting"></i>控制台</el-menu-item>
                 <el-submenu index="9">
                     <template slot="title"><i style="color: white;" class="el-icon-user"></i>用户1</template>
-                    <el-menu-item index="9-2">退出登录</el-menu-item>
-                    <el-menu-item index="9-2">系统管理</el-menu-item>
+                    <el-menu-item index="9-1">退出登录</el-menu-item>
+                    <el-menu-item index="9-2">修改密码</el-menu-item>
+                    <el-menu-item index="9-3" v-on:click="linkToManagement">系统管理</el-menu-item>
                 </el-submenu>
             </el-menu>
             <!--<el-button size="mini" class="header-button">客户端下载</el-button>

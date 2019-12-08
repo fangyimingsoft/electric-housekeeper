@@ -52,13 +52,6 @@ public class WarningAlgorithm {
         return describe.size() > 0 ? describe : new ArrayList<>(0);
     }
 
-    /**
-     * 超温报警
-     *
-     */
-    public void overTemperature(){
-
-    }
 
     /**
      * 是否低电压
@@ -124,4 +117,41 @@ public class WarningAlgorithm {
         return (capacity * 1D)/(1.732D * 0.4D);
     }
 
+    /**
+     * 超温报警
+     * @param ha
+     * @param hb
+     * @param hc
+     * @param la
+     * @param lb
+     * @param lc
+     * @param n
+     * @param standard
+     * @return
+     */
+    public static List<String> overTemperature(Double ha,Double hb,Double hc,Double la,Double lb,Double lc,Double n,double standard){
+        List<String> result = new ArrayList<>();
+        if(ha != null && ha >= standard){
+            result.add("高侧A相");
+        }
+        if(hb != null && ha >= standard){
+            result.add("高侧B相");
+        }
+        if(hc != null && hc >= standard){
+            result.add("高侧C相");
+        }
+        if(la != null && la >= standard){
+            result.add("低侧A相");
+        }
+        if(lb != null && lb >= standard){
+            result.add("低侧B相");
+        }
+        if(lc != null && lc >= standard){
+            result.add("低侧C相");
+        }
+        if(n != null && n >= standard){
+            result.add("N相");
+        }
+        return result;
+    }
 }
