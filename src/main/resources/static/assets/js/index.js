@@ -656,7 +656,7 @@ let root =
             "deviceDataDrawer.showColumn" : function(){
                 this.updateDeviceDataCharts();
             },
-            "activeArea" : function(newValue){
+            "activeArea" : function(newValue,old){
                 switch (newValue) {
                     case '3' : {
                         let that = this;
@@ -699,6 +699,9 @@ let root =
                         });
                     }break;
                     case '8':{
+                    }break;
+                    case '9-3':{
+                        this.activeArea = old;
                     }break;
                 }
             }
