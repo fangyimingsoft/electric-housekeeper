@@ -1060,6 +1060,7 @@
                             </transition-group>
                         </div>
                         <el-drawer
+                                size="50%"
                                 v-on:closed="deviceMonitor.form.uniqueDevice = null"
                                 :title="deviceDataDrawer.device.name + (deviceDataDrawer.device.updateTime ? ('(更新于' + deviceDataDrawer.device.updateTime + ')') : '')"
                                 :visible.sync="deviceDataDrawer.show"
