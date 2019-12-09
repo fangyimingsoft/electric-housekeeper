@@ -183,6 +183,7 @@ $(function () {
                     this.device.form.lat = device.lat;
                     this.device.form.status = device.status;
                     this.device.deviceDrawerShow = true;
+                    this.device.form.ct = device.ct;
                     let that = this;
                     Vue.nextTick(function () {
                         that.$refs['deviceForm'].clearValidate();

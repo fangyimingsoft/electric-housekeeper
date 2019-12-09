@@ -115,8 +115,8 @@ public class MessageParser_Old {
         String currentStr = substrWithLength(message, strPos.get(), 12, posConsumer);
         List<Double> currents = getGroupDoubleValue(currentStr,3,4);
         data.setCurrentA(currents.get(0) * currentFactor * ct);
-        data.setCurrentB(currents.get(0) * currentFactor * ct);
-        data.setCurrentC(currents.get(0) * currentFactor * ct);
+        data.setCurrentB(currents.get(1) * currentFactor * ct);
+        data.setCurrentC(currents.get(2) * currentFactor * ct);
 
         //79~94     有功功率(PA PB PC 总)
         String activePowerStr = substrWithLength(message, strPos.get(), 16, posConsumer);
