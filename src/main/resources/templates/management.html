@@ -144,6 +144,9 @@
                             <el-table-column prop="capacity" align="center" label="容量">
 
                             </el-table-column>
+                            <el-table-column prop="ct" align="center" label="CT">
+
+                            </el-table-column>
                             <el-table-column prop="deptId" align="center" label="所属部门">
 
                             </el-table-column>
@@ -268,8 +271,11 @@
                             <el-form-item label="设备类型" prop="type" :rules="[{required : true,message : '请选择设备类型'}]">
                                 <el-input v-model="device.form.type"></el-input>
                             </el-form-item>
-                            <el-form-item label="容量" prop="capacity" :rules="[{required : true,message : '请输入数字',type : 'number'}]">
+                            <el-form-item label="容量" prop="capacity" :rules="[{required : true,message : '请输入小于或等于4位的数字',type : 'number'}]">
                                 <el-input v-model.number="device.form.capacity"></el-input>
+                            </el-form-item>
+                            <el-form-item label="CT" prop="ct" :rules="[{required : true,message : '请输入数字',type : 'number'}]">
+                                <el-input v-model.number="device.form.ct"></el-input>
                             </el-form-item>
                             <el-form-item label="所属部门" prop="deptId" :rules="[{required : true,message : '请选择所属部门'}]">
                                 <el-select v-model="device.form.deptId">

@@ -117,7 +117,8 @@ public class DeviceController {
                                     @RequestParam("lng") String lng,
                                     @RequestParam("lat") String lat,
                                     @RequestParam("status") Integer status,
-                                    @RequestParam("deptId") Integer deptId){
+                                    @RequestParam("deptId") Integer deptId,
+                                    @RequestParam("ct")Integer ct){
         ApiResponse response = ApiResponse.OK();
         Device device = new Device();
         device.setCode(code);
@@ -128,6 +129,7 @@ public class DeviceController {
         device.setLng(lng);
         device.setLat(lat);
         device.setDeptId(deptId);
+        device.setCt(ct);
         device.setInfoUpdateTime(new Date());
         Optional<Dept> byId = deptRepository.findById(deptId);
         if(byId.isPresent()){

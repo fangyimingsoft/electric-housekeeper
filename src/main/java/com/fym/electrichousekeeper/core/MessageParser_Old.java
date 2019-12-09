@@ -1,6 +1,7 @@
 package com.fym.electrichousekeeper.core;
 
 import com.fym.electrichousekeeper.entiry.po.Data;
+import com.fym.electrichousekeeper.service.DeviceService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -282,6 +283,10 @@ public class MessageParser_Old {
     }
 
     private Double getCT(String deviceCode){
+        Integer deviceCt = DeviceService.getDeviceCt(deviceCode);
+        if(deviceCt != null){
+            return deviceCt * 1D;
+        }
         return 1D;
     }
 

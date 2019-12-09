@@ -106,7 +106,8 @@ $(function () {
                         deptId : null,
                         lng : null,//经度
                         lat : null,//纬度
-                        status : null
+                        status : null,
+                        ct : null
                     },
                     deviceList : []
                 },
@@ -127,7 +128,19 @@ $(function () {
 
                     });
                 },
+                clearDeviceForm : function(){
+                    this.device.form.code = null;
+                    this.device.form.name = null;
+                    this.device.form.type = null;
+                    this.device.form.capacity = null;
+                    this.device.form.deptId = null;
+                    this.device.form.lng = null;
+                    this.device.form.lat = null;
+                    this.device.form.status = null;
+                    this.device.form.ct = null;
+                },
                 addDevice : function(){
+                    this.clearDeviceForm();
                     this.device.deviceDrawerShow = true;
                     this.device.form.isEdit = false;
                     let that = this;

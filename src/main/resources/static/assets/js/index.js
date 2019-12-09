@@ -740,7 +740,6 @@ let root =
     });
 
 function handleError(info){
-    console.log(info);
     alert("无法连接到服务器")
 }
 

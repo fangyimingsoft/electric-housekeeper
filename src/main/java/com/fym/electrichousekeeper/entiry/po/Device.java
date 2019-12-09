@@ -43,6 +43,8 @@ public class Device{
 
     private String lat;
 
+    private Integer ct;
+
     @Column(name = "temper_ha")
     private Double temperHa;
     @Column(name = "temper_hb")
