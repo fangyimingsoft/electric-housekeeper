@@ -30,11 +30,11 @@ spring:
 logging:
   level:
     root: info
-#  file:
-#    path: d:/ele-house-log
-#    name: electric-housekeeper.log
-#    max-size: 10MB
-#    clean-history-on-start: false
+  file:
+    path: e:\ele-house-log\
+    name: electric-housekeeper.log
+    max-size: 10MB
+    clean-history-on-start: false
 
 config:
   login:

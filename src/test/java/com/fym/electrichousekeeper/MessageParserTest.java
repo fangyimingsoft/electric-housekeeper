@@ -19,7 +19,7 @@ public class MessageParserTest {
     @Test
     public void test1() throws Exception {
 
-        BufferedReader reader = new BufferedReader( new FileReader("E:\\development\\workspace\\electric-housekeeper\\electric-housekeeper.log"));
+        /*BufferedReader reader = new BufferedReader( new FileReader("E:\\development\\workspace\\electric-housekeeper\\electric-housekeeper.log"));
         reader.lines().forEach(line->{
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()){
@@ -47,7 +47,7 @@ public class MessageParserTest {
                 }
 
             }
-        });
+        });*/
     }
 
 

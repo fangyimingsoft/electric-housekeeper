@@ -1,3 +1,6 @@
+#####公共配置#####
+server:
+  port: 8081
 #配置当前环境profile
 spring:
   profiles:
@@ -16,14 +19,6 @@ spring:
     suffix: .html
     prefix: classpath:/templates/
     cache: false
-#####公共配置#####
-server:
-  port: 8081
-
-#日志配置
-logging:
-  level:
-    root: INFO
 
 
 

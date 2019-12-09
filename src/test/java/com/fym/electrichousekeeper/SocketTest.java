@@ -10,14 +10,14 @@ public class SocketTest {
 
     @Test
     public void test1() throws IOException {
-        Socket socket = new Socket("116.196.101.91",80);
+        /*Socket socket = new Socket("116.196.101.91",80);
         try {
             InputStream inputStream = socket.getInputStream();
             int read = inputStream.read();
             System.out.println(read);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 }

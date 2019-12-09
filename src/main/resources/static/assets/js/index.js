@@ -1,4 +1,4 @@
-let hostPrefix = "http://127.0.0.1:8081/";
+let hostPrefix = "/";
 let WARNING_STATUS_NEW = 0;
 let WARNING_STATUS_CONFIRM = 1;
 let WARNING_STATUS_PUBLISH = 2;
@@ -352,9 +352,8 @@ let root =
                         newList.forEach(item=>{
                             that.deviceMonitor.warningList.push(item);
                         });
-                        console.log("新报警：" + newList.length);
-                        that.initPage();
                     }
+                    that.initPage();
                 });
             },
             warning : function(deviceWarning,close){
@@ -736,7 +735,7 @@ let root =
             },5000);*/
             setInterval(function(){
                 that.warningLogJob();
-            },10000);
+            },15000);
         }
     });
 

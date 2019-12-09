@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 public class SystemControllerTest {
 
-    @Test
+    /*@Test
     public void md5Test(){
         String md5 = SystemController.Encrypt("md5", "123456");
 
@@ -13,5 +13,5 @@ public class SystemControllerTest {
         System.out.println(md5);
         System.out.println(md52);
 
-    }
+    }*/
 }

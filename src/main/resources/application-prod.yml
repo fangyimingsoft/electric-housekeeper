@@ -39,4 +39,7 @@ logging:
 
 config:
   login:
-    require: true
+    require: false
+  topic:
+    data: LiaoNingData
+    control: LiaoNingControl
