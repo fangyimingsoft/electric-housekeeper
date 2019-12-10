@@ -60,8 +60,9 @@ public class DeviceController {
     public ApiResponse getOne(@RequestParam("code")String code){
         ApiResponse response = ApiResponse.OK();
         Date todayZero = DateComputeUtil.todayZero();
+        Date now = new Date();
         Date tomorrowZero = DateComputeUtil.add(todayZero,DateComputeUtil.TYPE_DATE,1);
-        List<Data> data = dataRepository.findDataByCodeAndTimeGreaterThanEqualAndTimeLessThan(code, todayZero, tomorrowZero);
+        List<Data> data = dataRepository.findDataByCodeAndTimeGreaterThanEqualAndTimeLessThan(code, DateComputeUtil.add(now,DateComputeUtil.TYPE_HOUR,-1), tomorrowZero);
         data.sort(Comparator.comparing(Data::getTime));
         response.setRows(data);
         return response;

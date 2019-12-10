@@ -13,6 +13,7 @@ import org.apache.tomcat.util.buf.HexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import java.text.DateFormat;
@@ -24,6 +25,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class KafkaMessageListener {
+
+    public static final String NETWORK_TYPE_INNER = "inner";
+
+    public static final String NETWORK_TYPE_OUTER = "outer";
 
     private Logger logger = LoggerFactory.getLogger(KafkaMessageListener.class);
 
@@ -44,18 +49,28 @@ public class KafkaMessageListener {
     @Autowired
     private WarningRepository warningRepository;
 
+    @Value("${config.kafka.network-type}")
+    private String kafkaMessageType;
+
 
     @KafkaListener(topics = "${config.topic.data}")
     public void consumer(ConsumerRecord<String,String> record){
         String message = record.value();
         long offset = record.offset();
         try {
-            /*JSONObject parse = (JSONObject)JSONObject.parse(message);
-            Long timestamp = parse.getLong("timestamp");
-            JSONObject eventPayload = (JSONObject)parse.get("eventPayload");
-            String data = eventPayload.getString("rawdata");*/
-            String data = message;
-            long timestamp = new Date().getTime();
+            String data = null;
+            Long timestamp = null;
+            //内网
+            if(kafkaMessageType.equals(NETWORK_TYPE_INNER)){
+                JSONObject parse = (JSONObject)JSONObject.parse(message);
+                timestamp = parse.getLong("timestamp") * 1000;
+                JSONObject eventPayload = (JSONObject)parse.get("eventPayload");
+                data = eventPayload.getString("rawdata");
+                //外网
+            }else if(kafkaMessageType.equals(NETWORK_TYPE_OUTER)){
+                data = message;
+                timestamp = new Date().getTime();
+            }
             if(data.length() != 574){
                 logger.error("消息长度异常：offset : " + offset + ",消息长度：" + data.length());
                 return;
@@ -186,7 +201,7 @@ public class KafkaMessageListener {
             type.add("C相低电压");
         }
         if(unbalance){
-            type.add("三相平衡");
+            type.add("三相不平衡");
         }
         if(overTemper.size() > 0){
             overTemper.forEach(desc->type.add(desc + "超温"));

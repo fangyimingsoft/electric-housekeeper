@@ -22,7 +22,11 @@ public class DateComputeUtil {
     public static Date add(Date date,int type,int number){
         Calendar instance = Calendar.getInstance();
         instance.setTime(date);
-        instance.add(type,number);
+        if(number > 0){
+            instance.add(type,number);
+        }else{
+            instance.roll(type,number);
+        }
         return instance.getTime();
     }
 

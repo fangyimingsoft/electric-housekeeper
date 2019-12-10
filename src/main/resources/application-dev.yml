@@ -39,6 +39,9 @@ logging:
 config:
   login:
     required: false
+  kafka:
+    #inner(内网环境) outer(外网环境)
+    network-type: inner
   topic:
     data: LiaoNingData
     control: LiaoNingControl
